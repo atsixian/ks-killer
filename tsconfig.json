@@ -3,6 +3,7 @@
     "rootDir": "src",
     "outDir": "lib",
     "target": "ESNext",
+    "lib": ["ESNext"],
     "moduleResolution": "node"
   }
 }

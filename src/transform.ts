@@ -8,9 +8,9 @@ function transform(targetId: string) {
     tsConfigFilePath: './tsconfig.json'
   });
 
-  const sourceFiles = project.getSourceFiles('src/test/**/*.ts');
+  const srcFiles = project.getSourceFiles('src/test/**/*.ts');
 
-  for (const srcFile of sourceFiles) {
+  for (const srcFile of srcFiles) {
     const functions = srcFile.getChildrenOfKind(SyntaxKind.FunctionDeclaration);
     for (const func of functions) {
       const returnStatement = func.getDescendantsOfKind(SyntaxKind.ReturnStatement)[0];
@@ -21,6 +21,27 @@ function transform(targetId: string) {
         continue;
       }
       console.log('found');
+      const references = func.findReferences();
+      for (const ref of references) {
+        const refDef = ref.getDefinition();
+        const name = refDef.getSourceFile().getBaseName();
+        // Skip references in current file
+        if (name == srcFile.getBaseName()) {
+          continue;
+        }
+        const refNode = refDef.getNode();
+        // TODO: Find the expression in the if block
+        const idReferences = refNode;
+        for (const idRef of idReferences) {
+          const idKind = idRef.getDefinition().getNode().getKind();
+          console.log({ idKind });
+          if (idKind === SyntaxKind.IfStatement) {
+            console.log(
+              'found ref in if'
+            );
+          }
+        }
+      }
     }
   }
 }
