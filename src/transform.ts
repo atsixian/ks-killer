@@ -3,26 +3,26 @@
  */
 import { Project, SyntaxKind } from 'ts-morph';
 
-const project = new Project({
-  tsConfigFilePath: './tsconfig.json'
-});
+function transform(targetId: string) {
+  const project = new Project({
+    tsConfigFilePath: './tsconfig.json'
+  });
 
-const sourceFiles = project.getSourceFiles('src/test/**/*.ts');
+  const sourceFiles = project.getSourceFiles('src/test/**/*.ts');
 
-for (const srcFile of sourceFiles) {
-  const functions = srcFile.getChildrenOfKind(SyntaxKind.FunctionDeclaration);
-  for (const func of functions) {
-    const returnStatements = func.getChildrenOfKind(SyntaxKind.ReturnStatement)[0];
-    if (!returnStatements) {
-      continue;
-    }
-    const callExp = returnStatements.getExpressionIfKind(SyntaxKind.CallExpression);
-    if (!callExp) {
-      continue;
-    }
-    const accessExp = callExp.getExpressionIfKind(SyntaxKind.PropertyAccessExpression);
-    if (accessExp?.getText() !== '_SPKillSwitch.isActivated') {
-      continue;
+  for (const srcFile of sourceFiles) {
+    const functions = srcFile.getChildrenOfKind(SyntaxKind.FunctionDeclaration);
+    for (const func of functions) {
+      const returnStatement = func.getDescendantsOfKind(SyntaxKind.ReturnStatement)[0];
+      const callExp = returnStatement?.getExpressionIfKind(SyntaxKind.CallExpression);
+      const accessExp = callExp?.getExpressionIfKind(SyntaxKind.PropertyAccessExpression);
+      const stringLiteral = callExp?.getDescendantsOfKind(SyntaxKind.StringLiteral)[0];
+      if (accessExp?.getText() !== '_SPKillSwitch.isActivated' || stringLiteral?.getText() !== `'${targetId}'`) {
+        continue;
+      }
+      console.log('found');
     }
   }
 }
+
+transform('cc6daf8f-3d72-4c85-adea-cbb098663992');
