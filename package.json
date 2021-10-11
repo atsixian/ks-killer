@@ -6,7 +6,8 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "start": "nodemon src/index.ts"
+    "start": "nodemon src/index.ts",
+    "transform": "ts-node src/transform.ts"
   },
   "devDependencies": {
     "@types/node": "^16.10.3",
