@@ -1,18 +1,42 @@
 /*
  * @copyright Microsoft Corporation. All rights reserved.
  */
-import { IfStatement, Project, SyntaxKind } from 'ts-morph';
+
+import { IfStatement, Project, Statement, SyntaxKind } from 'ts-morph';
 
 const project = new Project({
   tsConfigFilePath: './tsconfig.json'
 });
 
-const sourceFiles = project.getSourceFiles('src/test/**/*.ts');
+const sourceFiles = project.getSourceFiles('src/test/if-not-false.ts');
 
 sourceFiles.forEach((srcFile) => {
-  // get all if statements in the file
+  console.log(
+    `BEFORE ==============================================================================\n${srcFile.print()}`
+  );
   const ifStmts = srcFile.getChildrenOfKind(SyntaxKind.IfStatement);
   ifStmts.forEach((ifStmt) => {
-    console.log(ifStmt.getExpression().print());
+    if (isAlwaysTrue(ifStmt)) {
+      const thenBlock = ifStmt.getThenStatement();
+      ifStmt.replaceWithText(unwrapBlock(thenBlock));
+    }
   });
+  console.log(
+    `AFTER ===============================================================================\n${srcFile.print()}`
+  );
 });
+
+function isAlwaysTrue(ifStmt: IfStatement): boolean {
+  const exp = ifStmt.getExpressionIfKind(SyntaxKind.PrefixUnaryExpression);
+  return Boolean(
+    ifStmt.getExpressionIfKind(SyntaxKind.TrueKeyword) ||
+      (exp &&
+        exp.getOperatorToken() === SyntaxKind.ExclamationToken &&
+        exp.getOperand().getKind() === SyntaxKind.FalseKeyword)
+  );
+}
+
+function unwrapBlock(thenStmt: Statement): string {
+  // https://github.com/dsherret/ts-morph/issues/641
+  return thenStmt.getChildSyntaxListOrThrow().getText({ trimLeadingIndentation: true });
+}
