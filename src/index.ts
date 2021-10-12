@@ -3,6 +3,7 @@
  */
 
 import { IfStatement, Project, Statement, SyntaxKind } from 'ts-morph';
+import { unwrapBlock } from './utils';
 
 const project = new Project({
   tsConfigFilePath: './tsconfig.json'
@@ -36,7 +37,3 @@ function isAlwaysTrue(ifStmt: IfStatement): boolean {
   );
 }
 
-function unwrapBlock(thenStmt: Statement): string {
-  // https://github.com/dsherret/ts-morph/issues/641
-  return thenStmt.getChildSyntaxListOrThrow().getText({ trimLeadingIndentation: true });
-}
