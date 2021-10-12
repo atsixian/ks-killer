@@ -1,46 +1,81 @@
 /*
  * @copyright Microsoft Corporation. All rights reserved.
  */
-import { Project, SyntaxKind } from 'ts-morph';
+
+import { Node, Project, SyntaxKind, ts } from 'ts-morph';
+
+import { isAncestorOf } from './utils';
+
+const marks = new Set<Node<ts.Node>>();
 
 function transform(targetId: string) {
   const project = new Project({
     tsConfigFilePath: './tsconfig.json'
   });
 
-  const srcFiles = project.getSourceFiles('src/test/**/*.ts');
+  const srcFiles = project.getSourceFiles('src/test/{app,ks}.ts');
 
   for (const srcFile of srcFiles) {
+    // TODO only care about files with _SPKillSwitch import
     const functions = srcFile.getChildrenOfKind(SyntaxKind.FunctionDeclaration);
     for (const func of functions) {
-      const returnStatement = func.getDescendantsOfKind(SyntaxKind.ReturnStatement)[0];
+      const returnStatement = func.getFirstDescendantByKind(SyntaxKind.ReturnStatement);
       const callExp = returnStatement?.getExpressionIfKind(SyntaxKind.CallExpression);
       const accessExp = callExp?.getExpressionIfKind(SyntaxKind.PropertyAccessExpression);
-      const stringLiteral = callExp?.getDescendantsOfKind(SyntaxKind.StringLiteral)[0];
-      if (accessExp?.getText() !== '_SPKillSwitch.isActivated' || stringLiteral?.getText() !== `'${targetId}'`) {
+      const stringLiteral = callExp?.getFirstDescendantByKind(SyntaxKind.StringLiteral);
+      if (
+        accessExp?.getText() !== '_SPKillSwitch.isActivated' ||
+        stringLiteral?.getText() !== `'${targetId}'`
+      ) {
         continue;
       }
-      console.log('found');
-      const references = func.findReferences();
-      for (const ref of references) {
-        const refDef = ref.getDefinition();
+      console.log('[transform] found ref');
+      // Replace all references with 'true'
+      const refSymbols = func.findReferences();
+
+      for (const refSymbol of refSymbols) {
+        const refDef = refSymbol.getDefinition();
         const name = refDef.getSourceFile().getBaseName();
         // Skip references in current file
+        // TODO Or just skip declaration?
         if (name == srcFile.getBaseName()) {
           continue;
         }
-        const refNode = refDef.getNode();
-        // TODO: Find the expression in the if block
-        const idReferences = refNode;
-        for (const idRef of idReferences) {
-          const idKind = idRef.getDefinition().getNode().getKind();
-          console.log({ idKind });
-          if (idKind === SyntaxKind.IfStatement) {
-            console.log(
-              'found ref in if'
-            );
+
+        const refs = refSymbol.getReferences();
+        // Mark related Ifs
+        refs.forEach((ref) => {
+          console.log(
+            `BEFORE ==============================================================================\n${ref
+              .getSourceFile()
+              .print()}`
+          );
+
+          const refNode = ref.getNode();
+          // not a function call(e.g. declaration, import), skip
+          if (!refNode.getParentIfKind(SyntaxKind.CallExpression)) {
+            return;
           }
-        }
+
+          const ifAncestor = refNode.getFirstAncestorByKind(SyntaxKind.IfStatement);
+          const blockAncestor = refNode.getFirstAncestorByKind(SyntaxKind.Block);
+          // if it affects any condition for an if statement
+          if (ifAncestor) {
+            // check if it's directly related
+            if (blockAncestor && isAncestorOf(ifAncestor, blockAncestor)) {
+              return;
+            }
+            // mark it and handle in the next pass
+            marks.add(ifAncestor);
+          }
+          const callExpr = refNode.getParentIfKind(SyntaxKind.CallExpression);
+          callExpr?.replaceWithText('true');
+          console.log(
+            `AFTER ==============================================================================\n${ref
+              .getSourceFile()
+              .print()}`
+          );
+        });
       }
     }
   }
