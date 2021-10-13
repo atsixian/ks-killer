@@ -3,7 +3,7 @@
  */
 
 import { Project, SyntaxKind } from 'ts-morph';
-import { handleBinaryExp } from '../elimination/binaryExp';
+import { handleBinaryExp } from './binaryExp';
 
 const project = new Project({
   tsConfigFilePath: './tsconfig.json'
