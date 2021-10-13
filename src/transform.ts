@@ -2,19 +2,19 @@
  * @copyright Microsoft Corporation. All rights reserved.
  */
 
-import { Node, Project, SyntaxKind, ts } from 'ts-morph';
+import { IfStatement, Project, SyntaxKind, ts } from 'ts-morph';
+import { handleIf } from './elimination/if';
 
 import { isAncestorOf } from './utils';
 
-const marks = new Set<Node<ts.Node>>();
+const project = new Project({
+  tsConfigFilePath: './tsconfig.json'
+});
+
+const srcFiles = project.getSourceFiles('src/test/{app,ks}.ts');
+const marks = new Set<IfStatement>();
 
 function transform(targetId: string) {
-  const project = new Project({
-    tsConfigFilePath: './tsconfig.json'
-  });
-
-  const srcFiles = project.getSourceFiles('src/test/{app,ks}.ts');
-
   for (const srcFile of srcFiles) {
     // TODO only care about files with _SPKillSwitch import
     const functions = srcFile.getChildrenOfKind(SyntaxKind.FunctionDeclaration);
@@ -69,7 +69,7 @@ function transform(targetId: string) {
             marks.add(ifAncestor);
           }
           const callExpr = refNode.getParentIfKind(SyntaxKind.CallExpression);
-          callExpr?.replaceWithText('true');
+          callExpr?.replaceWithText('false');
           console.log(
             `AFTER ==============================================================================\n${ref
               .getSourceFile()
@@ -82,3 +82,6 @@ function transform(targetId: string) {
 }
 
 transform('cc6daf8f-3d72-4c85-adea-cbb098663992');
+
+marks.forEach((ifStmt) => handleIf(ifStmt));
+console.log(project.getSourceFile('src/test/app.ts').print());
