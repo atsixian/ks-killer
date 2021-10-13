@@ -1,7 +1,6 @@
 /*
  * @copyright Microsoft Corporation. All rights reserved.
  */
-
 import { BinaryExpression, SyntaxKind } from 'ts-morph';
 
 export function handleBinaryExp(exp: BinaryExpression) {
@@ -11,7 +10,7 @@ export function handleBinaryExp(exp: BinaryExpression) {
     // false && A => false
     // will be remvoed in the next step
     if (exp.getFirstChildByKind(SyntaxKind.FalseKeyword)) {
-      exp.replaceWithText('false');
+      const newExp = exp.replaceWithText('false');
     } else {
       simplify(exp, SyntaxKind.TrueKeyword);
     }

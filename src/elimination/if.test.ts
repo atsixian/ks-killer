@@ -5,6 +5,8 @@
 import { SourceFile, SyntaxKind } from 'ts-morph';
 import { getInfoFromText } from '../utils/getInfoFromText';
 import { handleIf } from './if';
+
+// TODO if-elseif-else
 describe('If', () => {
   describe('Simple if without else', () => {
     it('should remove whole if when cond is always true', () => {
