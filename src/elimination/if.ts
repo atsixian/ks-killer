@@ -1,9 +1,10 @@
-import { IfStatement } from 'ts-morph';
-import { unwrapBlock } from '../utils';
-
 /*
  * @copyright Microsoft Corporation. All rights reserved.
  */
+
+import { IfStatement } from 'ts-morph';
+import { unwrapBlock } from '../utils';
+
 export function handleIf(ifStmt: IfStatement) {
   try {
     // check if our replacement introduces const conditions
@@ -15,6 +16,12 @@ export function handleIf(ifStmt: IfStatement) {
       ifStmt.replaceWithText(unwrapBlock(thenBlock));
     } else {
       // always false
+      const elseBlock = ifStmt.getElseStatement();
+      if (!elseBlock) {
+        ifStmt.remove();
+      } else {
+        ifStmt.replaceWithText(unwrapBlock(elseBlock));
+      }
     }
   } catch (err) {
     // unable to optimize, skip
