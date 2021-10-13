@@ -7,10 +7,18 @@
   "private": true,
   "scripts": {
     "start": "nodemon src/index.ts",
-    "transform": "ts-node src/transform.ts"
+    "transform": "ts-node src/transform.ts",
+    "test": "jest",
+    "test:watch": "jest --watch"
   },
   "devDependencies": {
+    "@babel/core": "^7.15.8",
+    "@babel/preset-env": "^7.15.8",
+    "@babel/preset-typescript": "^7.15.0",
+    "@types/jest": "^27.0.2",
     "@types/node": "^16.10.3",
+    "babel-jest": "^27.2.5",
+    "jest": "^27.2.5",
     "nodemon": "^2.0.13"
   },
   "dependencies": {
