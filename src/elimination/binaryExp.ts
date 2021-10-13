@@ -4,26 +4,34 @@
 
 import { BinaryExpression, SyntaxKind } from 'ts-morph';
 
-export function handleBinary(exp: BinaryExpression) {
+export function handleBinaryExp(exp: BinaryExpression) {
   const operator = exp.getOperatorToken().getKind();
-  const lhs = exp.getLeft();
-  const rhs = exp.getRight();
 
   if (operator === SyntaxKind.AmpersandAmpersandToken) {
     // false && A => false
     // will be remvoed in the next step
     if (exp.getFirstChildByKind(SyntaxKind.FalseKeyword)) {
       exp.replaceWithText('false');
-    } else if (exp.getFirstChildByKind(SyntaxKind.TrueKeyword)) {
-      if (lhs.getKind() === SyntaxKind.TrueKeyword) {
-        exp.replaceWithText(rhs.getText());
-      } else {
-        exp.replaceWithText(lhs.getText());
-      }
+    } else {
+      simplify(exp, SyntaxKind.TrueKeyword);
     }
   } else if (operator === SyntaxKind.BarBarToken) {
-    if (exp.getLeft().getKind() === SyntaxKind.TrueKeyword) {
-      console.log('||');
+    if (exp.getFirstChildByKind(SyntaxKind.TrueKeyword)) {
+      exp.replaceWithText('true');
+    } else {
+      simplify(exp, SyntaxKind.FalseKeyword);
+    }
+  }
+}
+
+function simplify(exp: BinaryExpression, keyword: SyntaxKind.TrueKeyword | SyntaxKind.FalseKeyword): void {
+  if (exp.getFirstChildByKind(keyword)) {
+    const lhs = exp.getLeft();
+    const rhs = exp.getRight();
+    if (lhs.getKind() === keyword) {
+      exp.replaceWithText(rhs.getText());
+    } else {
+      exp.replaceWithText(lhs.getText());
     }
   }
 }

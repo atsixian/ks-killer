@@ -2,8 +2,8 @@
  * @copyright Microsoft Corporation. All rights reserved.
  */
 
-import { BinaryExpression, Project, SyntaxKind } from 'ts-morph';
-import { handleBinary } from '../elimination/binaryExp';
+import { Project, SyntaxKind } from 'ts-morph';
+import { handleBinaryExp } from '../elimination/binaryExp';
 
 const project = new Project({
   tsConfigFilePath: './tsconfig.json'
@@ -12,6 +12,6 @@ const project = new Project({
 const srcFile = project.getSourceFile('src/test/binaryExp.ts');
 const binaryExps = srcFile.getDescendantsOfKind(SyntaxKind.BinaryExpression);
 
-binaryExps.forEach(handleBinary);
+binaryExps.forEach(handleBinaryExp);
 
 console.log(srcFile.print());

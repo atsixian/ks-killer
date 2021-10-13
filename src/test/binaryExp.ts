@@ -1,6 +1,3 @@
-/*
- * @copyright Microsoft Corporation. All rights reserved.
- */
 true && A(); // A()
 A() && true; // A()
 false && A(); // false
