@@ -5,11 +5,15 @@
   "main": "index.js",
   "license": "MIT",
   "private": true,
+  "bin": {
+    "ks-killer": "./lib/cli.js"
+  },
   "scripts": {
-    "start": "nodemon src/index.ts",
+    "start": "yarn build && node ./lib/cli.js --help",
     "transform": "ts-node src/transform.ts",
     "test": "jest",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "build": "tsc"
   },
   "devDependencies": {
     "@babel/core": "^7.15.8",
@@ -24,6 +28,7 @@
   "dependencies": {
     "ts-morph": "^12.0.0",
     "ts-node": "^10.2.1",
-    "typescript": "^4.4.3"
+    "typescript": "^4.4.3",
+    "yargs": "^17.2.1"
   }
 }
