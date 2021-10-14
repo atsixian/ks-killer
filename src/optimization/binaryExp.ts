@@ -2,7 +2,7 @@
  * @copyright Microsoft Corporation. All rights reserved.
  */
 import { BinaryExpression, SyntaxKind, Node, ts } from 'ts-morph';
-import { HandlerReturnType } from '.';
+import { HandlerReturnType } from './optimize';
 import { tryUnwrapParenthese } from '../utils';
 
 export function handleBinaryExp(exp: BinaryExpression): HandlerReturnType {

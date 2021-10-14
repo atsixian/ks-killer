@@ -3,7 +3,7 @@
  */
 
 import { SourceFile, SyntaxKind } from 'ts-morph';
-import { optimize } from '.';
+import { optimize } from './optimize';
 import { getInfoFromText } from '../utils';
 import { handleConditionalExp } from './conditionalExp';
 

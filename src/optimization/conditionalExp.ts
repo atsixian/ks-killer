@@ -2,7 +2,7 @@
  * @copyright Microsoft Corporation. All rights reserved.
  */
 import { ConditionalExpression, SyntaxKind, Node, ts } from 'ts-morph';
-import { HandlerReturnType } from '.';
+import { HandlerReturnType } from './optimize';
 import { tryUnwrapParenthese } from '../utils';
 
 export function handleConditionalExp(exp: ConditionalExpression): HandlerReturnType {

@@ -2,10 +2,10 @@
  * @copyright Microsoft Corporation. All rights reserved.
  */
 
-
 import { SourceFile, SyntaxKind } from 'ts-morph';
-import { handleBinaryExp, optimize } from '.';
 import { getInfoFromText } from '../utils';
+import { handleBinaryExp } from './binaryExp';
+import { optimize } from './optimize';
 
 describe('Binary Expression', () => {
   describe('Simple expression', () => {
