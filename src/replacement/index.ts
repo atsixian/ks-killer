@@ -9,7 +9,7 @@ import { isAncestorOf } from '../utils';
 const KS_IMPORT_SPECIFIER = '_SPKillSwitch';
 const KS_ACTIVATED_METHOD = `${KS_IMPORT_SPECIFIER}.isActivated`;
 
-const marks = new Set<IfStatement>();
+const workList = new Set<Node<ts.Node>>();
 
 /**
  * Scan the project to find KS's declaration
@@ -54,7 +54,7 @@ export function findKSDeclaration(project: Project, targetId: string): FunctionD
  * Find if the KS affect any if block
  * @param node The KS call
  */
-function findAffectedIf(ksNode: Node<ts.Node>) {
+function findAffectedIf(ksNode: Node<ts.Node>): IfStatement | undefined {
   const ifAncestor = ksNode.getFirstAncestorByKind(SyntaxKind.IfStatement);
   const blockAncestor = ksNode.getFirstAncestorByKind(SyntaxKind.Block);
   if (ifAncestor) {
@@ -73,10 +73,16 @@ function replaceFunCallWithFalse(ksDecl: FunctionDeclaration) {
       const refNode = ref.getNode();
       const parentCall = refNode.getParentIfKind(SyntaxKind.CallExpression);
       // not a function call(e.g. declaration, import), skip
-      if (parentCall) {
+      if (!parentCall) {
         return;
       }
-      parentCall.replaceWithText('false');
+      // if it's negated, replace the whole thing with true
+      const negation = parentCall.getParentIfKind(SyntaxKind.PrefixUnaryExpression);
+      if (negation.getOperatorToken() === SyntaxKind.ExclamationToken) {
+        workList.add(negation.replaceWithText('true').getParent());
+      } else {
+        workList.add(parentCall.replaceWithText('false').getParent());
+      }
     });
   });
 }
