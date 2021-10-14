@@ -6,7 +6,7 @@
   "license": "MIT",
   "private": true,
   "bin": {
-    "ks-killer": "./lib/cli.js"
+    "ks-killer": "./bin/ks-killer.js"
   },
   "scripts": {
     "start": "yarn build && node ./lib/cli.js --help",
