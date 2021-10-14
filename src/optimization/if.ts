@@ -5,7 +5,7 @@
 import { IfStatement } from 'ts-morph';
 import { unwrapBlock } from '../utils';
 
-export function handleIf(ifStmt: IfStatement) {
+export function handleIf(ifStmt: IfStatement): void {
   try {
     // check if our replacement introduces const conditions
     const cond = eval(ifStmt.getExpression().getText());
