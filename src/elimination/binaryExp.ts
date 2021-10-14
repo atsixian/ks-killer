@@ -1,36 +1,36 @@
 /*
  * @copyright Microsoft Corporation. All rights reserved.
  */
-import { BinaryExpression, SyntaxKind } from 'ts-morph';
+import { BinaryExpression, SyntaxKind, Node, ts } from 'ts-morph';
+import { HandlerReturnType } from '.';
 
-export function handleBinaryExp(exp: BinaryExpression) {
+export function handleBinaryExp(exp: BinaryExpression): HandlerReturnType {
   const operator = exp.getOperatorToken().getKind();
-
+  let newWork: Node<ts.Node>;
   if (operator === SyntaxKind.AmpersandAmpersandToken) {
-    // false && A => false
-    // will be remvoed in the next step
-    if (exp.getFirstChildByKind(SyntaxKind.FalseKeyword)) {
-      const newExp = exp.replaceWithText('false');
-    } else {
-      simplify(exp, SyntaxKind.TrueKeyword);
-    }
+    newWork = exp.getFirstChildByKind(SyntaxKind.FalseKeyword)
+      ? exp.replaceWithText('false')
+      : simplify(exp, SyntaxKind.TrueKeyword);
   } else if (operator === SyntaxKind.BarBarToken) {
-    if (exp.getFirstChildByKind(SyntaxKind.TrueKeyword)) {
-      exp.replaceWithText('true');
-    } else {
-      simplify(exp, SyntaxKind.FalseKeyword);
-    }
+    newWork = exp.getFirstChildByKind(SyntaxKind.TrueKeyword)
+      ? exp.replaceWithText('true')
+      : simplify(exp, SyntaxKind.FalseKeyword);
   }
+  if (newWork && newWork.getParentIfKind(SyntaxKind.ParenthesizedExpression)) {
+    newWork = newWork.getParent().replaceWithText(newWork.getText());
+  }
+  return newWork;
 }
 
-function simplify(exp: BinaryExpression, keyword: SyntaxKind.TrueKeyword | SyntaxKind.FalseKeyword): void {
+function simplify(
+  exp: BinaryExpression,
+  keyword: SyntaxKind.TrueKeyword | SyntaxKind.FalseKeyword
+): HandlerReturnType {
   if (exp.getFirstChildByKind(keyword)) {
     const lhs = exp.getLeft();
     const rhs = exp.getRight();
-    if (lhs.getKind() === keyword) {
-      exp.replaceWithText(rhs.getText());
-    } else {
-      exp.replaceWithText(lhs.getText());
-    }
+    return lhs.getKind() === keyword
+      ? exp.replaceWithText(rhs.getText())
+      : exp.replaceWithText(lhs.getText());
   }
 }
