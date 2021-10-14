@@ -2,7 +2,8 @@
  * @copyright Microsoft Corporation. All rights reserved.
  */
 
-import { Block, Node, ReferenceEntry, Statement, ts } from 'ts-morph';
+import { Block, Node, ReferenceEntry, Statement, SyntaxKind, ts } from 'ts-morph';
+import { HandlerReturnType } from '../optimization';
 
 /**
  * Determine if nodeA is an ancestor of nodeB
@@ -14,6 +15,12 @@ export function isAncestorOf(nodeA: Node<ts.Node>, nodeB: Node<ts.Node>): boolea
 export function unwrapBlock(target: Statement | Block): string {
   // https://github.com/dsherret/ts-morph/issues/641
   return target.getChildSyntaxListOrThrow().getText({ trimLeadingIndentation: true });
+}
+
+export function tryUnwrapParenthese(node: Node<ts.Node>): HandlerReturnType {
+  if (node && node.getParentIfKind(SyntaxKind.ParenthesizedExpression)) {
+    return node.getParent().replaceWithText(node.getText());
+  }
 }
 
 export function printReference(reference: ReferenceEntry) {

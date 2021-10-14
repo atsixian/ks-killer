@@ -3,10 +3,11 @@
  */
 import { BinaryExpression, SyntaxKind, Node, ts } from 'ts-morph';
 import { HandlerReturnType } from '.';
+import { tryUnwrapParenthese } from '../utils';
 
 export function handleBinaryExp(exp: BinaryExpression): HandlerReturnType {
   const operator = exp.getOperatorToken().getKind();
-  let newWork: Node<ts.Node>;
+  let newWork: HandlerReturnType;
   if (operator === SyntaxKind.AmpersandAmpersandToken) {
     newWork = exp.getFirstChildByKind(SyntaxKind.FalseKeyword)
       ? exp.replaceWithText('false')
@@ -19,7 +20,7 @@ export function handleBinaryExp(exp: BinaryExpression): HandlerReturnType {
   if (newWork && newWork.getParentIfKind(SyntaxKind.ParenthesizedExpression)) {
     newWork = newWork.getParent().replaceWithText(newWork.getText());
   }
-  return newWork;
+  return tryUnwrapParenthese(newWork);
 }
 
 function simplify(

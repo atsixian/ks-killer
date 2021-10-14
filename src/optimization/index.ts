@@ -19,7 +19,7 @@ export function optimize(node: Node<ts.Node>) {
       newWork = handleBinaryExp(node as BinaryExpression);
       break;
     case SyntaxKind.ConditionalExpression:
-      handleConditionalExp(node as ConditionalExpression);
+      newWork = handleConditionalExp(node as ConditionalExpression);
       break;
     case SyntaxKind.IfStatement:
       handleIf(node as IfStatement);
