@@ -6,11 +6,11 @@
   "license": "MIT",
   "private": true,
   "bin": {
-    "ks-killer": "./bin/ks-killer.js"
+    "ks-killer": "./bin/index.js"
   },
   "scripts": {
     "start": "yarn build && node ./lib/cli.js --help",
-    "transform": "ts-node src/transform.ts",
+    "dev": "tsc --watch",
     "test": "jest",
     "test:watch": "jest --watch",
     "build": "tsc"
