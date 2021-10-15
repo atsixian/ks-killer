@@ -3,9 +3,9 @@
  */
 
 import { SourceFile, SyntaxKind } from 'ts-morph';
+import { optimizeNode } from '.';
 import { getInfoFromText } from '../utils';
 import { handleBinaryExp } from './binaryExp';
-import { optimize } from './optimize';
 
 describe('Binary Expression', () => {
   describe('Simple expression', () => {
@@ -31,14 +31,14 @@ describe('Binary Expression', () => {
       const { sourceFile } = getInfoFromText(`
          (true || A()) || B() 
       `);
-      sourceFile.getDescendantsOfKind(SyntaxKind.BinaryExpression).forEach(optimize);
+      sourceFile.getDescendantsOfKind(SyntaxKind.BinaryExpression).forEach(optimizeNode);
       expect(sourceFile.getText().trim()).toBe(`true`);
     });
     it('should handle forgotten node', () => {
       const { sourceFile } = getInfoFromText(`
          (true || A()) || (true && B()) 
       `);
-      sourceFile.getDescendantsOfKind(SyntaxKind.BinaryExpression).forEach(optimize);
+      sourceFile.getDescendantsOfKind(SyntaxKind.BinaryExpression).forEach(optimizeNode);
       expect(sourceFile.getText().trim()).toBe(`true`);
     });
   });

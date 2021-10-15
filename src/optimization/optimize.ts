@@ -2,16 +2,18 @@
  * @copyright Microsoft Corporation. All rights reserved.
  */
 
-import { SyntaxKind, ts } from '@ts-morph/common';
-import { BinaryExpression, ConditionalExpression, IfStatement, Node } from 'ts-morph';
-
+import { BinaryExpression, ConditionalExpression, IfStatement, Node, SyntaxKind, ts } from 'ts-morph';
 import { handleBinaryExp } from './binaryExp';
 import { handleConditionalExp } from './conditionalExp';
 import { handleIf } from './if';
 
 export type HandlerReturnType = Node<ts.Node> | undefined;
 
-export function optimize(node: Node<ts.Node>) {
+export function optimize(nodes: Set<Node<ts.Node>>) {
+  nodes.forEach(optimizeNode);
+}
+
+export function optimizeNode(node: Node<ts.Node>) {
   if (!node || node.wasForgotten()) return;
   let newWork: HandlerReturnType;
   switch (node.getKind()) {
@@ -27,6 +29,6 @@ export function optimize(node: Node<ts.Node>) {
   }
   // if there's any optimization happened
   if (newWork) {
-    optimize(newWork.getParent());
+    optimizeNode(newWork.getParent());
   }
 }

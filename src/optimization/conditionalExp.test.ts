@@ -3,7 +3,7 @@
  */
 
 import { SourceFile, SyntaxKind } from 'ts-morph';
-import { optimize } from './optimize';
+import { optimizeNode } from './optimize';
 import { getInfoFromText } from '../utils';
 import { handleConditionalExp } from './conditionalExp';
 
@@ -53,5 +53,5 @@ describe('Conditional Expression', () => {
 function handleCondExps(sourceFile: SourceFile, nested: boolean = false) {
   sourceFile
     .getDescendantsOfKind(SyntaxKind.ConditionalExpression)
-    .forEach(nested ? optimize : handleConditionalExp);
+    .forEach(nested ? optimizeNode : handleConditionalExp);
 }

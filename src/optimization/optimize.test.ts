@@ -3,7 +3,7 @@
  */
 
 import { SourceFile, SyntaxKind } from 'ts-morph';
-import { optimize } from '.';
+import { optimizeNode } from '.';
 import { getInfoFromText } from '../utils';
 
 describe('Optimize', () => {
@@ -28,5 +28,5 @@ describe('Optimize', () => {
 });
 
 function handleOptimize(sourceFile: SourceFile, kind: SyntaxKind) {
-  sourceFile.getDescendantsOfKind(kind).forEach(optimize);
+  sourceFile.getDescendantsOfKind(kind).forEach(optimizeNode);
 }

@@ -2,6 +2,13 @@
  * @copyright Microsoft Corporation. All rights reserved.
  */
 import yargs from 'yargs/yargs';
+import { run } from '.';
+
+interface Arguments {
+  ID: string;
+  projectPath: string;
+  ksFilePath: string;
+}
 
 const argv = yargs(process.argv.slice(2))
   .usage('ks-killer <KS ID> [options...]')
@@ -11,7 +18,7 @@ const argv = yargs(process.argv.slice(2))
     'KS Killer',
     (yargs) => {
       yargs
-        .positional('ID', {
+        .positional('id', {
           describe: 'ID of the KS to graduate',
           type: 'string'
         })
@@ -27,6 +34,6 @@ const argv = yargs(process.argv.slice(2))
           describe: 'The file path of the KS. This boosts performance.'
         });
     },
-    ({ ID: id, projectPath, ksFilePath }) => console.log(id, projectPath, ksFilePath)
+    ({ ID, projectPath, ksFilePath }: Arguments) => run(ID, projectPath, ksFilePath)
   )
   .help().argv;
