@@ -2,38 +2,22 @@
  * @copyright Microsoft Corporation. All rights reserved.
  */
 
-import { IfStatement, Project, Statement, SyntaxKind } from 'ts-morph';
-import { unwrapBlock } from './utils';
+import path from 'path';
 
-const project = new Project({
-  tsConfigFilePath: './tsconfig.json'
-});
+import { Project } from 'ts-morph';
 
-const sourceFiles = project.getSourceFiles('src/test/if-not-false.ts');
+import { optimize } from './optimization';
+import { findKSDeclaration, replaceFunCallWithFalse } from './replacement';
 
-sourceFiles.forEach((srcFile) => {
-  console.log(
-    `BEFORE ==============================================================================\n${srcFile.print()}`
-  );
-  const ifStmts = srcFile.getChildrenOfKind(SyntaxKind.IfStatement);
-  ifStmts.forEach((ifStmt) => {
-    if (isAlwaysTrue(ifStmt)) {
-      const thenBlock = ifStmt.getThenStatement();
-      ifStmt.replaceWithText(unwrapBlock(thenBlock));
-    }
-  });
-  console.log(
-    `AFTER ===============================================================================\n${srcFile.print()}`
-  );
-});
-
-function isAlwaysTrue(ifStmt: IfStatement): boolean {
-  const exp = ifStmt.getExpressionIfKind(SyntaxKind.PrefixUnaryExpression);
-  return Boolean(
-    ifStmt.getExpressionIfKind(SyntaxKind.TrueKeyword) ||
-      (exp &&
-        exp.getOperatorToken() === SyntaxKind.ExclamationToken &&
-        exp.getOperand().getKind() === SyntaxKind.FalseKeyword)
-  );
+export function run(id: string, projectPath: string, ksFilePath?: string) {
+  const project = new Project();
+  project.addSourceFilesAtPaths(path.join(projectPath, `src/**/*.{ts,tsx}`));
+  const ksDecls = findKSDeclaration(project, id, ksFilePath);
+  // TODO check if the KS is actived. If so, do thing.
+  if (!ksDecls.length) {
+    console.log(`No KS found. Is the ID ${id} correct?`);
+    return;
+  }
+  ksDecls.map(replaceFunCallWithFalse).forEach(optimize);
+  project.save();
 }
-
