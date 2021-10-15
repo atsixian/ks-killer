@@ -2,31 +2,42 @@
  * @copyright Microsoft Corporation. All rights reserved.
  */
 
-import { IfStatement, Project, SyntaxKind, FunctionDeclaration, ReferenceEntry, Node, ts } from 'ts-morph';
-
+import { FunctionDeclaration, IfStatement, Node, Project, SourceFile, SyntaxKind, ts } from 'ts-morph';
 import { isAncestorOf } from '../utils';
 
 const KS_IMPORT_SPECIFIER = '_SPKillSwitch';
 const KS_ACTIVATED_METHOD = `${KS_IMPORT_SPECIFIER}.isActivated`;
 
-const workList = new Set<Node<ts.Node>>();
-
 /**
  * Scan the project to find KS's declaration
  * @param project Target project
  * @param targetId KS ID
+ * @param ksFilePath The file containing KS declaration. This boosts performance.
  */
-export function findKSDeclaration(project: Project, targetId: string): FunctionDeclaration[] {
+export function findKSDeclaration(
+  project: Project,
+  targetId: string,
+  ksFilePath?: string
+): FunctionDeclaration[] {
   // May have multiple decls with the same id, so it's an array
   const result: FunctionDeclaration[] = [];
 
-  // Declarations can only appear where we have KS imports
-  const ksFiles = project.getSourceFiles().filter((f) =>
-    f
-      .getDescendantsOfKind(SyntaxKind.ImportSpecifier)
-      .map((im) => im.getName())
-      .includes(KS_IMPORT_SPECIFIER)
-  );
+  let ksFiles: SourceFile[];
+  if (ksFilePath) {
+    try {
+      ksFiles.push(project.getSourceFileOrThrow(ksFilePath));
+    } catch (err) {
+      console.error(`Invalid KS file path: ${ksFilePath}`);
+    }
+  } else {
+    // Declarations can only appear where we have KS imports
+    ksFiles = project.getSourceFiles().filter((f) =>
+      f
+        .getDescendantsOfKind(SyntaxKind.ImportSpecifier)
+        .map((im) => im.getName())
+        .includes(KS_IMPORT_SPECIFIER)
+    );
+  }
 
   ksFiles.forEach((ksFile) => {
     const funDecls = ksFile.getChildrenOfKind(SyntaxKind.FunctionDeclaration);
@@ -66,28 +77,36 @@ function findAffectedIf(ksNode: Node<ts.Node>): IfStatement | undefined {
   }
 }
 
-function replaceFunCallWithFalse(ksDecl: FunctionDeclaration) {
+/**
+ * Replace KS calls with 'false'
+ * @param ksDecl KS Declarations. Used to find references.
+ * @returns A list of nodes to be optimized.
+ */
+export function replaceFunCallWithFalse(ksDecl: FunctionDeclaration): Set<Node<ts.Node>> {
+  const workList = new Set<Node<ts.Node>>();
   const refSymbols = ksDecl.findReferences();
+  console.log(`${refSymbols.length} references found`);
   refSymbols.forEach((refSymbol) => {
     refSymbol.getReferences().forEach((ref) => {
       const refNode = ref.getNode();
-      const parentCall = refNode.getParentIfKind(SyntaxKind.CallExpression);
-      // not a function call(e.g. declaration, import), skip
-      if (!parentCall) {
+      const parent = refNode.getParent();
+      if (parent.getKind() === SyntaxKind.ImportSpecifier) {
+        parent.replaceWithText('');
         return;
       }
+      // not a function call(e.g. declaration), skip
+      if (!(parent.getKind() === SyntaxKind.CallExpression)) {
+        return;
+      }
+      console.log(`Handling ${ref.getSourceFile().getFilePath()}`);
       // if it's negated, replace the whole thing with true
-      const negation = parentCall.getParentIfKind(SyntaxKind.PrefixUnaryExpression);
+      const negation = parent.getParentIfKind(SyntaxKind.PrefixUnaryExpression);
       if (negation.getOperatorToken() === SyntaxKind.ExclamationToken) {
         workList.add(negation.replaceWithText('true').getParent());
       } else {
-        workList.add(parentCall.replaceWithText('false').getParent());
+        workList.add(parent.replaceWithText('false').getParent());
       }
     });
   });
-}
-
-function transform(project: Project, targetId: string) {
-  const ksDecls = findKSDeclaration(project, targetId);
-  ksDecls.forEach(replaceFunCallWithFalse);
+  return workList;
 }
