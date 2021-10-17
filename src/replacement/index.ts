@@ -82,31 +82,30 @@ function findAffectedIf(ksNode: Node<ts.Node>): IfStatement | undefined {
  * @param ksDecl KS Declarations. Used to find references.
  * @returns A list of nodes to be optimized.
  */
-export function replaceFunCallWithFalse(ksDecl: FunctionDeclaration): Set<Node<ts.Node>> {
+export function replaceFunCallWithFalse(ksDecl: FunctionDeclaration): {
+  workList: Set<Node<ts.Node>>;
+  refFiles: Array<SourceFile>;
+} {
   const workList = new Set<Node<ts.Node>>();
+  const refFiles = new Set<SourceFile>();
   const refSymbols = ksDecl.findReferences();
-  console.log(`${refSymbols.length} references found`);
   refSymbols.forEach((refSymbol) => {
     refSymbol.getReferences().forEach((ref) => {
       const refNode = ref.getNode();
       const parent = refNode.getParent();
-      if (parent.getKind() === SyntaxKind.ImportSpecifier) {
-        parent.replaceWithText('');
-        return;
-      }
       // not a function call(e.g. declaration), skip
       if (!(parent.getKind() === SyntaxKind.CallExpression)) {
         return;
       }
-      console.log(`Handling ${ref.getSourceFile().getFilePath()}`);
+      refFiles.add(refNode.getSourceFile());
       // if it's negated, replace the whole thing with true
       const negation = parent.getParentIfKind(SyntaxKind.PrefixUnaryExpression);
-      if (negation.getOperatorToken() === SyntaxKind.ExclamationToken) {
+      if (negation?.getOperatorToken() === SyntaxKind.ExclamationToken) {
         workList.add(negation.replaceWithText('true').getParent());
       } else {
         workList.add(parent.replaceWithText('false').getParent());
       }
     });
   });
-  return workList;
+  return { workList, refFiles: [...refFiles] };
 }

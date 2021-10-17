@@ -18,6 +18,23 @@ export function run(id: string, projectPath: string, ksFilePath?: string) {
     console.log(`No KS found. Is the ID ${id} correct?`);
     return;
   }
-  ksDecls.map(replaceFunCallWithFalse).forEach(optimize);
+  ksDecls.map(replaceFunCallWithFalse).forEach(({ workList, refFiles }) => {
+    optimize(workList);
+
+    // run while new changes happened
+    let changed: boolean;
+    do {
+      changed = false;
+      refFiles.forEach((f) => {
+        const lastWidth = f.getFullWidth();
+        f.fixUnusedIdentifiers();
+        if (f.getFullWidth() !== lastWidth) {
+          changed = true;
+        }
+      });
+    } while (changed);
+  });
+  // remove KS function declarations
+  ksDecls.forEach((decl) => decl.remove());
   project.save();
 }
