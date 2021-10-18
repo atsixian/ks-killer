@@ -26,6 +26,7 @@
     "nodemon": "^2.0.13"
   },
   "dependencies": {
+    "ora": "^6.0.1",
     "ts-morph": "^12.0.0",
     "ts-node": "^10.2.1",
     "typescript": "^4.4.3",
