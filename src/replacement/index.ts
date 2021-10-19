@@ -88,6 +88,7 @@ export function replaceFunCallWithFalse(ksDecl: FunctionDeclaration): {
 } {
   const workList = new Set<Node<ts.Node>>();
   const refFiles = new Set<SourceFile>();
+  console.log('Finding references...');
   const refSymbols = ksDecl.findReferences();
   refSymbols.forEach((refSymbol) => {
     refSymbol.getReferences().forEach((ref) => {
