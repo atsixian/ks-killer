@@ -2,10 +2,8 @@
   "name": "ks-killer",
   "description": "Kill your Switches",
   "author": "Sixian Li",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "license": "MIT",
-  "main": "./lib/cli.js",
-  "types": "./lib/cli",
   "files": [
     "./bin",
     "./lib"
