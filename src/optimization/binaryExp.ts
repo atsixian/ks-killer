@@ -17,9 +17,6 @@ export function handleBinaryExp(exp: BinaryExpression): HandlerReturnType {
       ? exp.replaceWithText('true')
       : simplify(exp, SyntaxKind.FalseKeyword);
   }
-  if (newWork && newWork.getParentIfKind(SyntaxKind.ParenthesizedExpression)) {
-    newWork = newWork.getParent().replaceWithText(newWork.getText());
-  }
   return tryUnwrapParenthese(newWork);
 }
 

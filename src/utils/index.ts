@@ -21,6 +21,7 @@ export function tryUnwrapParenthese(node: Node<ts.Node>): HandlerReturnType {
   if (node && node.getParentIfKind(SyntaxKind.ParenthesizedExpression)) {
     return node.getParent().replaceWithText(node.getText());
   }
+  return node;
 }
 
 export function printReference(reference: ReferenceEntry) {
