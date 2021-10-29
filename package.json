@@ -1,13 +1,12 @@
 {
   "name": "ks-killer",
-  "description": "Kill your Switches",
+  "description": "Kill your Switches with ease",
   "author": "Sixian Li",
   "version": "0.1.0",
   "license": "MIT",
-  "files": [
-    "./bin",
-    "./lib"
-  ],
+  "publishConfig": {
+    "registry": "https://registry.yarnpkg.com"
+  },
   "bin": {
     "ks-killer": "./bin/index.js"
   },
@@ -17,7 +16,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "build": "tsc",
-    "clean": "rimraf lib"
+    "clean": "rimraf lib",
+    "prepublishOnly": "yarn clean && yarn build"
   },
   "devDependencies": {
     "@babel/core": "^7.15.8",
