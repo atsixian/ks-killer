@@ -24,6 +24,14 @@ describe('Binary Expression', () => {
       handleBinaryExps(sourceFile);
       expect(sourceFile.getText().trim()).toBe(`true, true, A(), A()`);
     });
+
+    it('should handle undefined/null', () => {
+      const { sourceFile } = getInfoFromText(`
+      undefined && A(), undefined || A(), null && A(), null || A()
+    `);
+      handleBinaryExps(sourceFile);
+      expect(sourceFile.getText().trim()).toBe(`undefined, A(), null, A()`);
+    });
   });
 
   describe('Nested expression', () => {
