@@ -10,7 +10,7 @@ describe('isFalsy', () => {
     const exprs = sourceFile.getChildrenOfKind(SyntaxKind.ExpressionStatement)
     it.each(
         exprs.map(expr => ({ name: expr.getFirstChild().getText(), node: expr.getFirstChild() }))
-    )(`$name`, ({ name, node }) => {
-        expect(isFalsy(node)).toBeFalsy()
+    )(`$name`, ({ node }) => {
+      expect(isFalsy(node)).toBeTruthy()
     });
 });
