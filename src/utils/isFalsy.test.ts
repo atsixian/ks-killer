@@ -3,6 +3,7 @@ import { getInfoFromText } from ".";
 import { isFalsy } from "./isFalsy";
 
 describe('isFalsy', () => {
+    // https://developer.mozilla.org/en-US/docs/Glossary/Falsy
     const { sourceFile } = getInfoFromText(`
         false; null; undefined; 0; -0; 0n; NaN; ""; ''; \`\`;
     `);
