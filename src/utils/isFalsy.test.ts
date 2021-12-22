@@ -1,6 +1,6 @@
 import { SyntaxKind } from "@ts-morph/common";
 import { getInfoFromText } from ".";
-import { isFalsy } from "./isFalsy";
+import { isFalsy } from "./isConstantExpr";
 
 describe('isFalsy', () => {
     // https://developer.mozilla.org/en-US/docs/Glossary/Falsy
