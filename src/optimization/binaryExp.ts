@@ -3,32 +3,27 @@
  */
 import { BinaryExpression, SyntaxKind, Node, ts } from 'ts-morph';
 import { HandlerReturnType } from './optimize';
-import { tryUnwrapParenthese } from '../utils';
+import { isConstantExpr, isFalsy, tryUnwrapParenthese } from '../utils';
+
+const isTruthy = (node: Node<ts.Node>) => isConstantExpr(node) && !isFalsy(node);
 
 export function handleBinaryExp(exp: BinaryExpression): HandlerReturnType {
   const operator = exp.getOperatorToken().getKind();
   let newWork: HandlerReturnType;
   if (operator === SyntaxKind.AmpersandAmpersandToken) {
-    newWork = exp.getFirstChildByKind(SyntaxKind.FalseKeyword)
+    newWork = exp.getFirstChild(isFalsy) // if there's a falsy child
       ? exp.replaceWithText('false')
-      : simplify(exp, SyntaxKind.TrueKeyword);
+      : simplify(exp, isTruthy);
   } else if (operator === SyntaxKind.BarBarToken) {
-    newWork = exp.getFirstChildByKind(SyntaxKind.TrueKeyword)
-      ? exp.replaceWithText('true')
-      : simplify(exp, SyntaxKind.FalseKeyword);
+    newWork = exp.getFirstChild(isTruthy) ? exp.replaceWithText('true') : simplify(exp, isFalsy);
   }
   return tryUnwrapParenthese(newWork);
 }
 
-function simplify(
-  exp: BinaryExpression,
-  keyword: SyntaxKind.TrueKeyword | SyntaxKind.FalseKeyword
-): HandlerReturnType {
-  if (exp.getFirstChildByKind(keyword)) {
+function simplify(exp: BinaryExpression, cond: (node: Node<ts.Node>) => boolean): HandlerReturnType {
+  if (exp.getFirstChild(cond)) {
     const lhs = exp.getLeft();
     const rhs = exp.getRight();
-    return lhs.getKind() === keyword
-      ? exp.replaceWithText(rhs.getText())
-      : exp.replaceWithText(lhs.getText());
+    return cond(lhs) ? exp.replaceWithText(rhs.getText()) : exp.replaceWithText(lhs.getText());
   }
 }

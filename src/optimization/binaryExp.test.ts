@@ -30,8 +30,17 @@ describe('Binary Expression', () => {
       undefined && A(), undefined || A(), null && A(), null || A()
     `);
       handleBinaryExps(sourceFile);
-      expect(sourceFile.getText().trim()).toBe(`undefined, A(), null, A()`);
+      expect(sourceFile.getText().trim()).toBe(`false, A(), false, A()`);
     });
+
+    it('should handle all falsy values', () => {
+      const { sourceFile } = getInfoFromText(`
+
+      undefined && A(), undefined || A(), null && A(), null || A()
+    `);
+      handleBinaryExps(sourceFile);
+      expect(sourceFile.getText().trim()).toBe(`false, A(), false, A()`);
+    })
   });
 
   describe('Nested expression', () => {
