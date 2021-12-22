@@ -21,3 +21,7 @@ $ ks-killer <target-ks-id>
 # This boosts performance because we don't need to scan many source files just to find the declaration.
 $ ks-killer <target-ks-id> -k path/to/ks-decl
 ```
+
+## Implementation
+The [deck](https://slides.com/sixianli/ks-killer) explains it in detail.
+![image](https://user-images.githubusercontent.com/43892874/147040023-d6540028-b008-46f5-b24c-7882a9725c75.png)
