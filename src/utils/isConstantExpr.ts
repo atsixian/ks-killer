@@ -14,49 +14,52 @@ const CONSTANT_CHECKERS = [
   Node.isNoSubstitutionTemplateLiteral,
   isUndefined,
   isNaN,
-  isNumericalLiteral,
+  isNumber,
   isInfinity,
   isEmptyObject,
   isEmptyArray
 ];
 const FALSY_CHECKERS = [Node.isFalseLiteral, Node.isNullLiteral, isUndefined, isNaN, isZero, isEmptyString];
 
-export function isUndefined(node: Node<ts.Node>): boolean {
+function isUndefined(node: Node<ts.Node>): boolean {
   return node.asKind(SyntaxKind.Identifier)?.getText() === 'undefined';
 }
 
-function isNumericalLiteral(node: Node<ts.Node> | undefined): boolean {
+function isNegativeNumericalLiteral(node: Node<ts.Node>) {
+  const unaryExpr = node.asKind(SyntaxKind.PrefixUnaryExpression);
   return (
-    Node.isNumericLiteral(node) ||
-    Node.isBigIntLiteral(node) ||
-    node.asKind(SyntaxKind.PrefixUnaryExpression)?.getFirstChildIfKind(SyntaxKind.NumericLiteral) !==
-    undefined
+    unaryExpr && unaryExpr.getOperatorToken() === SyntaxKind.MinusToken && isNumber(unaryExpr.getOperand())
   );
 }
 
+function isNumber(node: Node<ts.Node>) {
+  return isNumericalLiteral(node) || isNegativeNumericalLiteral(node);
+}
+
+function isNumericalLiteral(node: Node<ts.Node>): boolean {
+  return Node.isNumericLiteral(node) || Node.isBigIntLiteral(node);
+}
+
 function isInfinity(node: Node<ts.Node>): boolean {
-  return node.asKind(SyntaxKind.Identifier)?.getText() === 'Infinity' || node.asKind(SyntaxKind.PrefixUnaryExpression)?.getText() === '-Infinity'
+  return (
+    node.asKind(SyntaxKind.Identifier)?.getText() === 'Infinity' ||
+    node.asKind(SyntaxKind.PrefixUnaryExpression)?.getText() === '-Infinity'
+  );
 }
 
 function isEmptyObject(node: Node<ts.Node>): boolean {
-  return node.asKind(SyntaxKind.ObjectLiteralExpression)?.getProperties().length === 0
+  return node.asKind(SyntaxKind.ObjectLiteralExpression)?.getProperties().length === 0;
 }
 
 function isEmptyArray(node: Node<ts.Node>): boolean {
-  return node.asKind(SyntaxKind.ArrayLiteralExpression)?.getElements().length === 0
+  return node.asKind(SyntaxKind.ArrayLiteralExpression)?.getElements().length === 0;
 }
 
-export function isNaN(node: Node<ts.Node>): boolean {
-  return node.asKind(SyntaxKind.Identifier)?.getText() === 'NaN'
+function isNaN(node: Node<ts.Node>): boolean {
+  return node.asKind(SyntaxKind.Identifier)?.getText() === 'NaN';
 }
 
-
-export function isConstantExpr(node: Node<ts.Node>): boolean {
-  if (!node) return false;
-  return CONSTANT_CHECKERS.map(checker => checker(node)).some(res => res)
-}
-
-function isZero(node: Node<ts.Node> | undefined): boolean {
+function isZero(node: Node<ts.Node>): boolean {
   return (
     node.asKind(SyntaxKind.NumericLiteral)?.getLiteralValue() === 0 || //0
     node.asKind(SyntaxKind.PrefixUnaryExpression)?.getText() === '-0' || // -0
@@ -71,12 +74,16 @@ function isEmptyString(node: Node<ts.Node>): boolean {
   );
 }
 
+export function isConstantExpr(node: Node<ts.Node> | undefined): boolean {
+  if (!node) return false;
+  return CONSTANT_CHECKERS.map((checker) => checker(node)).some((res) => res);
+}
 
-export function isFalsy(node: Node<ts.Node>): boolean {
+export function isFalsy(node: Node<ts.Node> | undefined): boolean {
   if (!node) return false;
   return FALSY_CHECKERS.map((checker) => checker(node)).some((res) => res);
 }
 
-export function isTruthyConstExpr(node: Node<ts.Node>) {
-  return isConstantExpr(node) && !isFalsy(node)
+export function isTruthyConstExpr(node: Node<ts.Node> | undefined) {
+  return isConstantExpr(node) && !isFalsy(node);
 }
