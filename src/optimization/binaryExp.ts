@@ -3,9 +3,7 @@
  */
 import { BinaryExpression, SyntaxKind, Node, ts } from 'ts-morph';
 import { HandlerReturnType } from './optimize';
-import { isConstantExpr, isFalsy, tryUnwrapParenthese } from '../utils';
-
-const isTruthy = (node: Node<ts.Node>) => isConstantExpr(node) && !isFalsy(node);
+import { isFalsy, isTruthyConstExpr, tryReplaceParentParentheses } from '../utils';
 
 export function handleBinaryExp(exp: BinaryExpression): HandlerReturnType {
   const operator = exp.getOperatorToken().getKind();
@@ -13,11 +11,11 @@ export function handleBinaryExp(exp: BinaryExpression): HandlerReturnType {
   if (operator === SyntaxKind.AmpersandAmpersandToken) {
     newWork = exp.getFirstChild(isFalsy) // if there's a falsy child
       ? exp.replaceWithText('false')
-      : simplify(exp, isTruthy);
+      : simplify(exp, isTruthyConstExpr);
   } else if (operator === SyntaxKind.BarBarToken) {
-    newWork = exp.getFirstChild(isTruthy) ? exp.replaceWithText('true') : simplify(exp, isFalsy);
+    newWork = exp.getFirstChild(isTruthyConstExpr) ? exp.replaceWithText('true') : simplify(exp, isFalsy);
   }
-  return tryUnwrapParenthese(newWork);
+  return tryReplaceParentParentheses(newWork);
 }
 
 function simplify(exp: BinaryExpression, cond: (node: Node<ts.Node>) => boolean): HandlerReturnType {

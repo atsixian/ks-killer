@@ -3,7 +3,7 @@
  */
 import { ConditionalExpression, SyntaxKind, Node, ts } from 'ts-morph';
 import { HandlerReturnType } from './optimize';
-import { tryUnwrapParenthese } from '../utils';
+import { tryReplaceParentParentheses } from '../utils';
 
 export function handleConditionalExp(exp: ConditionalExpression): HandlerReturnType {
   const cond = exp.getCondition();
@@ -13,5 +13,5 @@ export function handleConditionalExp(exp: ConditionalExpression): HandlerReturnT
   } else if (cond.getKind() === SyntaxKind.FalseKeyword) {
     newWork = exp.replaceWithText(exp.getWhenFalse().getText());
   }
-  return tryUnwrapParenthese(newWork);
+  return tryReplaceParentParentheses(newWork);
 }
