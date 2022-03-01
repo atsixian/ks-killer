@@ -1,31 +1,41 @@
 import { SyntaxKind } from '@ts-morph/common';
-import { getInfoFromText, isTruthyConstExpr } from '.';
+import { getInfoFromText, isTruthyConstExpr, tryUnwrapParenthese } from '.';
 import { isFalsy } from './isConstantExpr';
 
+// https://developer.mozilla.org/en-US/docs/Glossary/Truthy
+const truthyValues = [
+  'true',
+  '({})',
+  '[]',
+  '42',
+  `'0'`,
+  `'false'`,
+  // 'new Date()', not handled for now
+  '-42',
+  '12n',
+  '3.14',
+  '-3.14',
+  'Infinity',
+  '-Infinity'
+];
+
+// https://developer.mozilla.org/en-US/docs/Glossary/Falsy
+const falsyValues = ['false', 'null', 'undefined', '0', '-0', '0n', 'NaN', `""`, `''`, '``'];
+
 describe('isFalsy', () => {
-  // https://developer.mozilla.org/en-US/docs/Glossary/Falsy
-  const { sourceFile } = getInfoFromText(`
-        false; null; undefined; 0; -0; 0n; NaN; ""; ''; \`\`;
-    `);
-  const exprs = sourceFile.getChildrenOfKind(SyntaxKind.ExpressionStatement);
-  it.each(exprs.map((expr) => ({ name: expr.getFirstChild().getText(), node: expr.getFirstChild() })))(
-    `$name`,
-    ({ node }) => {
-      expect(isFalsy(node)).toBeTruthy();
-    }
-  );
+  it.each(falsyValues)('%s', (value) => {
+    const node = getInfoFromText(value).firstChild.getFirstChild();
+    expect(isFalsy(node)).toBeTruthy();
+  });
 });
 
 describe('isTruthyConstExpr', () => {
-  // https://developer.mozilla.org/en-US/docs/Glossary/Falsy
-  const { sourceFile } = getInfoFromText(`
-      true; {}; []; 17; -17; "0"; "false"; 12n; -12n; 3.14; -3.14; Infinity; -Infinity;
-  `);
-  const exprs = sourceFile.getChildrenOfKind(SyntaxKind.ExpressionStatement);
-  it.each(exprs.map((expr) => ({ name: expr.getFirstChild().getText(), node: expr.getFirstChild() })))(
-    `$name`,
-    ({ node }) => {
-      expect(isTruthyConstExpr(node)).toBeTruthy();
+  it.each(truthyValues)('%s', (value) => {
+    let node = getInfoFromText(value).firstChild.getFirstChild();
+    // Need to unwrap parenthesized expressions
+    if (value === '({})') {
+      node = node.asKind(SyntaxKind.ParenthesizedExpression)?.getExpression();
     }
-  );
+    expect(isTruthyConstExpr(node)).toBeTruthy();
+  });
 });
