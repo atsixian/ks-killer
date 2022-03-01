@@ -5,3 +5,4 @@ lib
 *.tgz
 package
 yarn-error.log
+coverage
