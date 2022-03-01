@@ -15,3 +15,14 @@ export function tryReplaceParentParentheses(node: Node<ts.Node>): HandlerReturnT
   }
   return node;
 }
+
+/**
+ * Unwrap a ParenthesizedExpression from top to bottom
+ */
+export function tryUnwrapParentheses(node: Node<ts.Node>): HandlerReturnType {
+  const innerExpr = node.asKind(SyntaxKind.ParenthesizedExpression)?.getExpression();
+  if (innerExpr) {
+    return tryUnwrapParentheses(innerExpr);
+  }
+  return node;
+}

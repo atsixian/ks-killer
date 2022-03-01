@@ -1,4 +1,5 @@
 import { Node, SyntaxKind, ts } from 'ts-morph';
+import { tryUnwrapParentheses } from '.';
 
 // True, false, null, undefined
 // Number, -Number, BigInt, NaN, Infinity, -Infinity
@@ -76,6 +77,7 @@ function isEmptyString(node: Node<ts.Node>): boolean {
 
 export function isConstantExpr(node: Node<ts.Node> | undefined): boolean {
   if (!node) return false;
+  node = tryUnwrapParentheses(node);
   return CONSTANT_CHECKERS.map((checker) => checker(node)).some((res) => res);
 }
 

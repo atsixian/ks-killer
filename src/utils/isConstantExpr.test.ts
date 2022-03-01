@@ -1,9 +1,8 @@
-import { SyntaxKind } from '@ts-morph/common';
-import { getInfoFromText, isTruthyConstExpr, tryUnwrapParenthese } from '.';
+import { getInfoFromText, isTruthyConstExpr, tryUnwrapParentheses } from '.';
 import { isFalsy } from './isConstantExpr';
 
 // https://developer.mozilla.org/en-US/docs/Glossary/Truthy
-const truthyValues = [
+export const truthyValues = [
   'true',
   '({})',
   '[]',
@@ -20,7 +19,7 @@ const truthyValues = [
 ];
 
 // https://developer.mozilla.org/en-US/docs/Glossary/Falsy
-const falsyValues = ['false', 'null', 'undefined', '0', '-0', '0n', 'NaN', `""`, `''`, '``'];
+export const falsyValues = ['false', 'null', 'undefined', '0', '-0', '0n', 'NaN', `""`, `''`, '``'];
 
 describe('isFalsy', () => {
   it.each(falsyValues)('%s', (value) => {
@@ -34,7 +33,7 @@ describe('isTruthyConstExpr', () => {
     let node = getInfoFromText(value).firstChild.getFirstChild();
     // Need to unwrap parenthesized expressions
     if (value === '({})') {
-      node = node.asKind(SyntaxKind.ParenthesizedExpression)?.getExpression();
+      node = tryUnwrapParentheses(node);
     }
     expect(isTruthyConstExpr(node)).toBeTruthy();
   });
