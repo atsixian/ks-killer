@@ -3,7 +3,7 @@
  */
 
 import { SourceFile, SyntaxKind } from 'ts-morph';
-import { getInfoFromText } from '../utils/getInfoFromText';
+import { getInfoFromText } from '../utils';
 import { handleIf } from './if';
 
 // TODO if-elseif-else
