@@ -10,13 +10,6 @@
   "bin": {
     "ks-killer": "./bin/index.js"
   },
-  "jest": {
-    "collectCoverageFrom": [
-      "src/**/*.ts",
-      "!src/**/index.ts",
-      "!src/**/cli.ts"
-    ]
-  },
   "scripts": {
     "start": "yarn build && node ./lib/cli.js --help",
     "dev": "tsc --watch",
