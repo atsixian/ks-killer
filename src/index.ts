@@ -7,15 +7,15 @@ import path from 'path';
 import { Project } from 'ts-morph';
 
 import { optimize } from './optimization';
-import { findKSDeclaration, replaceFunCallWithFalse } from './replacement';
+import { findKSDeclaration, replaceFunCallWithFalse, ICoreParameter } from './replacement';
 
-export function run(id: string, projectPath: string, ksFilePath?: string) {
+export function run(projectPath: string, object: ICoreParameter) {
   const project = new Project();
   project.addSourceFilesAtPaths(path.join(projectPath, `src/**/*.{ts,tsx}`));
-  const ksDecls = findKSDeclaration(project, id, ksFilePath);
-  // TODO check if the KS is actived. If so, do thing.
+  const ksDecls = findKSDeclaration(project, object);
+  // TODO: check if the KS is activated. If so, do thing.
   if (!ksDecls.length) {
-    console.log(`No KS found. Is the ID ${id} correct?`);
+    console.log(`No KS found.`);
     return;
   }
   ksDecls.map(replaceFunCallWithFalse).forEach(({ workList, refFiles }) => {

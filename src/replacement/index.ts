@@ -14,14 +14,21 @@ const KS_ACTIVATED_METHOD = `${KS_IMPORT_SPECIFIER}.isActivated`;
  * @param targetId KS ID
  * @param ksFilePath The file containing KS declaration. This boosts performance.
  */
-export function findKSDeclaration(
-  project: Project,
-  targetId: string,
-  ksFilePath?: string
-): FunctionDeclaration[] {
+export interface ICoreParameter {
+  targetId?: string,
+  ksFilePath?: string,
+  thresholdDate?: Date
+}
+// graduate ks before 180 days
+const defaultDate = new Date(Date.now() - 1000 * 60 * 60 * 24 * 180);
+
+export function findKSDeclaration(project: Project, object: ICoreParameter): FunctionDeclaration[] {
   // May have multiple decls with the same id, so it's an array
   const result: FunctionDeclaration[] = [];
 
+  const { targetId, ksFilePath, thresholdDate = defaultDate } = object;
+
+  // find file with 'KS_ACTIVATED_METHOD'
   let ksFiles: SourceFile[];
   if (ksFilePath) {
     try {
@@ -42,19 +49,56 @@ export function findKSDeclaration(
   ksFiles.forEach((ksFile) => {
     const funDecls = ksFile.getChildrenOfKind(SyntaxKind.FunctionDeclaration);
     funDecls.forEach((funDecl) => {
-      // restrict the structre
+      // restrict the structure
       // return _SPKillSwitch.isActivated(ID)
       const returnStatement = funDecl.getFirstDescendantByKind(SyntaxKind.ReturnStatement);
       const callExp = returnStatement?.getExpressionIfKind(SyntaxKind.CallExpression);
       const accessExp = callExp?.getExpressionIfKind(SyntaxKind.PropertyAccessExpression);
-      // wrong structure or ID doesn't match, skip
+      // wrong structure, skip
       if (
-        accessExp?.getText() != KS_ACTIVATED_METHOD ||
-        callExp?.getArguments()[0]?.getText() !== `'${targetId}'`
+        accessExp?.getText() != KS_ACTIVATED_METHOD
       ) {
         return;
       }
-      result.push(funDecl);
+
+      // if targetId is provided, it should be matched with the ks id
+      if (targetId) {
+        if (callExp?.getArguments()[0]?.getText() === `'${targetId}'`) {
+          result.push(funDecl as FunctionDeclaration);
+        }
+      } else {
+        // if the second argument exist,it should be the date
+        let dateString = callExp?.getArguments()[1]?.getText();
+
+        // invalid date string
+        if (isNaN(Date.parse(dateString))) {
+          dateString = "";
+        }
+
+        if (!dateString) {
+          // get comments in line 
+          const comments = callExp?.getArguments()[0]?.getTrailingCommentRanges();
+          for (const comment of comments!) {
+            const commentText = comment.getText();
+            const execResult = /['"](\d{1,2}\/\d{1,2}\/\d{1,4})["']/g.exec(commentText);
+            dateString = execResult && execResult[1];
+          }
+        }
+
+        if (!dateString) {
+          // get comments in block
+          const comments1 = returnStatement.getChildren()[1]?.getText();
+          const execResult2 = /\/\*.*['"](\d{1,2}\/\d{1,2}\/\d{1,4})["']/g.exec(comments1);
+          dateString = execResult2 && execResult2[1];
+        }
+
+        if (dateString) {
+          const parsedDate: Date = new Date(dateString);
+          if (parsedDate < thresholdDate) {
+            result.push(funDecl as FunctionDeclaration);
+          }
+        }
+      }
     });
   });
 
