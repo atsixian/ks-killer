@@ -2,6 +2,7 @@
  * @copyright Microsoft Corporation. All rights reserved.
  */
 import yargs from 'yargs/yargs';
+import { validate as uuidValidate } from 'uuid';
 import { run } from '.';
 
 interface IArguments {
@@ -22,7 +23,7 @@ const argv: IArguments = yargs(process.argv.slice(2))
   .option('beforeDate', {
     alias: ['before-date'],
     type: 'string',
-    describe: 'Graduate ks before the specific date.'
+    describe: 'Graduate ks before the specific date. MM/DD/YYYY'
   })
   .option('projectPath', {
     alias: ['project-Path', 'p'],
@@ -38,6 +39,12 @@ const argv: IArguments = yargs(process.argv.slice(2))
   .conflicts('ID', 'beforeDate')
   .check((argv) => {
     if ((argv.ID || argv.beforeDate)) {
+      if (argv.ID && !uuidValidate(argv.ID)) {
+        throw (new Error('Error: please provide a valid ks-ID (uuid)'));
+      }
+      if (argv.beforeDate && isNaN(new Date(argv.beforeDate).getTime())) {
+        throw (new Error('Error: please provide a valid date (MM/DD/YYYY)'));
+      }
       return true;
     } else if (/^\w{8}-\w{4}-\w{4}-\w{4}-\w{12}$/.test(argv['_'][0]?.toString())) {
       argv.ID = argv['_'][0]?.toString();
