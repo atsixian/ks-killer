@@ -7,12 +7,12 @@ import path from 'path';
 import { Project } from 'ts-morph';
 
 import { optimize } from './optimization';
-import { findKSDeclaration, replaceFunCallWithFalse, ICoreParameter } from './replacement';
+import { findKSDeclaration, replaceFunCallWithFalse, ICoreOptions } from './replacement';
 
-export function run(projectPath: string, object: ICoreParameter) {
+export function run(projectPath: string, options: ICoreOptions) {
   const project = new Project();
   project.addSourceFilesAtPaths(path.join(projectPath, `src/**/*.{ts,tsx}`));
-  const ksDecls = findKSDeclaration(project, object);
+  const ksDecls = findKSDeclaration(project, options);
   // TODO: check if the KS is activated. If so, do thing.
   if (!ksDecls.length) {
     console.log(`No KS found.`);

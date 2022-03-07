@@ -3,7 +3,7 @@
  */
 
 import { FunctionDeclaration, IfStatement, Node, Project, SourceFile, SyntaxKind, ts } from 'ts-morph';
-import { isAncestorOf } from '../utils';
+import { isAncestorOf, extractDateFromComments } from '../utils';
 
 const KS_IMPORT_SPECIFIER = '_SPKillSwitch';
 const KS_ACTIVATED_METHOD = `${KS_IMPORT_SPECIFIER}.isActivated`;
@@ -14,7 +14,7 @@ const KS_ACTIVATED_METHOD = `${KS_IMPORT_SPECIFIER}.isActivated`;
  * @param targetId KS ID
  * @param ksFilePath The file containing KS declaration. This boosts performance.
  */
-export interface ICoreParameter {
+export interface ICoreOptions {
   targetId?: string,
   ksFilePath?: string,
   thresholdDate?: Date
@@ -22,11 +22,11 @@ export interface ICoreParameter {
 // graduate ks before 180 days
 const defaultDate = new Date(Date.now() - 1000 * 60 * 60 * 24 * 180);
 
-export function findKSDeclaration(project: Project, object: ICoreParameter): FunctionDeclaration[] {
+export function findKSDeclaration(project: Project, options: ICoreOptions): FunctionDeclaration[] {
   // May have multiple decls with the same id, so it's an array
   const result: FunctionDeclaration[] = [];
 
-  const { targetId, ksFilePath, thresholdDate = defaultDate } = object;
+  const { targetId, ksFilePath, thresholdDate = defaultDate } = options;
 
   // find file with 'KS_ACTIVATED_METHOD'
   let ksFiles: SourceFile[];
@@ -64,7 +64,7 @@ export function findKSDeclaration(project: Project, object: ICoreParameter): Fun
       // if targetId is provided, it should be matched with the ks id
       if (targetId) {
         if (callExp?.getArguments()[0]?.getText() === `'${targetId}'`) {
-          result.push(funDecl as FunctionDeclaration);
+          result.push(funDecl);
         }
       } else {
         // if the second argument exist,it should be the date
@@ -76,26 +76,14 @@ export function findKSDeclaration(project: Project, object: ICoreParameter): Fun
         }
 
         if (!dateString) {
-          // get comments in line 
-          const comments = callExp?.getArguments()[0]?.getTrailingCommentRanges();
-          for (const comment of comments!) {
-            const commentText = comment.getText();
-            const execResult = /['"](\d{1,2}\/\d{1,2}\/\d{1,4})["']/g.exec(commentText);
-            dateString = execResult && execResult[1];
-          }
-        }
-
-        if (!dateString) {
-          // get comments in block
-          const comments1 = returnStatement.getChildren()[1]?.getText();
-          const execResult2 = /\/\*.*['"](\d{1,2}\/\d{1,2}\/\d{1,4})["']/g.exec(comments1);
-          dateString = execResult2 && execResult2[1];
+          // get date from comments
+          dateString = extractDateFromComments(funDecl);
         }
 
         if (dateString) {
           const parsedDate: Date = new Date(dateString);
           if (parsedDate < thresholdDate) {
-            result.push(funDecl as FunctionDeclaration);
+            result.push(funDecl);
           }
         }
       }
