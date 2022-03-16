@@ -42,7 +42,7 @@ const argv: IArguments = yargs(process.argv.slice(2))
       if (argv.ID && !uuidValidate(argv.ID)) {
         throw (new Error('Error: please provide a valid ks-ID (uuid)'));
       }
-      if (argv.beforeDate && isNaN(new Date(argv.beforeDate).getTime())) {
+      if (argv.beforeDate && isNaN(Date.parse(argv.beforeDate)) {
         throw (new Error('Error: please provide a valid date (e.g. MM/DD/YYYY)'));
       }
       return true;
