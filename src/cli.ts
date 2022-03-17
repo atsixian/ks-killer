@@ -13,7 +13,12 @@ interface IArguments {
 }
 
 const argv: IArguments = yargs(process.argv.slice(2))
-  .usage('ks-killer [options...]')
+  .usage('Usage:\n$0 <ks-id>\n$0 --id <ks-id>\n$0 --before-date <date>')
+  .example([
+    ['$0 39ededd5-f5aa-441c-9197-e312dea3ec45'],
+    ['$0 --id 39ededd5-f5aa-441c-9197-e312dea3ec45'],
+    ['$0 --before-date 02/28/2022']
+  ])
   .showHelpOnFail(true)
   .option('ID', {
     alias: ['id'],
@@ -38,23 +43,26 @@ const argv: IArguments = yargs(process.argv.slice(2))
   })
   .conflicts('ID', 'beforeDate')
   .check((argv) => {
-    if ((argv.ID || argv.beforeDate)) {
+    if (argv.ID || argv.beforeDate) {
       if (argv.ID && !uuidValidate(argv.ID)) {
-        throw (new Error('Error: please provide a valid ks-ID (uuid)'));
+        throw new Error('Error: please provide a valid ks-ID (uuid)');
       }
-      if (argv.beforeDate && isNaN(Date.parse(argv.beforeDate)) {
-        throw (new Error('Error: please provide a valid date (e.g. MM/DD/YYYY)'));
+      if (argv.beforeDate && isNaN(Date.parse(argv.beforeDate))) {
+        throw new Error('Error: please provide a valid date (e.g. MM/DD/YYYY)');
       }
       return true;
-    } else if (/^\w{8}-\w{4}-\w{4}-\w{4}-\w{12}$/.test(argv['_'][0]?.toString())) {
-      argv.ID = argv['_'][0]?.toString();
-      return true;
+    } else if (argv['_'][0]) {
+      if (uuidValidate(argv['_'][0]?.toString())) {
+        argv.ID = argv['_'][0]?.toString();
+        return true;
+      }
+      throw new Error('Error: please provide a valid ks-ID (uuid)');
     } else {
-      throw (new Error('Error: please provide either ksid(--id) or date(--before-date)'));
+      throw new Error('Error: please provide either ksid(--id) or date(--before-date)');
     }
   })
   .help().argv;
 
 const { ID, projectPath, ksFilePath, beforeDate } = argv;
 
-run(projectPath, { targetId: ID, ksFilePath, thresholdDate: new Date(beforeDate) })
+run(projectPath, { targetId: ID, ksFilePath, thresholdDate: new Date(beforeDate) });
