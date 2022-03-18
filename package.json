@@ -17,7 +17,8 @@
     "test:watch": "jest --watch",
     "build": "tsc",
     "clean": "rimraf lib",
-    "prepublishOnly": "yarn clean && yarn build"
+    "prepublishOnly": "yarn clean && yarn build",
+    "lint": "eslint src"
   },
   "simple-git-hooks": {
     "pre-commit": "yarn lint-staged"
@@ -34,6 +35,7 @@
     "@babel/core": "^7.15.8",
     "@babel/preset-env": "^7.15.8",
     "@babel/preset-typescript": "^7.15.0",
+    "@types/eslint": "^8.4.1",
     "@types/jest": "^27.0.2",
     "@types/node": "^16.10.3",
     "@types/uuid": "^8.3.4",
