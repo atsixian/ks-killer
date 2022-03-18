@@ -1,4 +1,4 @@
-import { Node, ts } from "ts-morph";
+import { Node, ts } from 'ts-morph';
 
 /**
  * Determine if nodeA is an ancestor of nodeB
