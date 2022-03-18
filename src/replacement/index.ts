@@ -72,7 +72,7 @@ export function findKSDeclaration(project: Project, options: ICoreOptions): Func
 
         // invalid date string
         if (isNaN(Date.parse(dateString))) {
-          dateString = "";
+          dateString = '';
         }
 
         if (!dateString) {
