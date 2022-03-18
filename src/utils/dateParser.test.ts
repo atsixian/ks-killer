@@ -3,8 +3,9 @@ import { getDate, extractDateFromComments } from './dateParser';
 import { getInfoFromText } from '.';
 
 const validComments = [
-  `/* '08/24/2021', 'fix focus lost when cancel the dialog' */`,
+  `/* '08/24/2021' , 'fix focus lost when cancel the dialog' */`,
   `/* "08/24/2021", fix focus lost when cancel the dialog */`,
+  `/* 08/24/2021, fix focus lost when cancel the dialog */`,
   `// '08/24/2021', 'fix focus lost when cancel the dialog' `,
 ]
 

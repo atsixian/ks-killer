@@ -3,10 +3,10 @@
  */
 
 import { FunctionDeclaration, IfStatement, Node, Project, SourceFile, SyntaxKind, ts } from 'ts-morph';
+import { validate as uuidValidate } from 'uuid';
 import { isAncestorOf, extractDateFromComments } from '../utils';
 
-const KS_IMPORT_SPECIFIER = '_SPKillSwitch';
-const KS_ACTIVATED_METHOD = `${KS_IMPORT_SPECIFIER}.isActivated`;
+const KS_ACTIVATED_METHOD = `.isActivated`;
 
 /**
  * Scan the project to find KS's declaration
@@ -19,12 +19,21 @@ export interface ICoreOptions {
   ksFilePath?: string,
   thresholdDate?: Date
 }
-// graduate ks before 180 days
+
+interface IReturnStructure {
+  ksDecls: FunctionDeclaration[],
+  guids: string[]
+}
+
+// graduate ks before 180 days by default
 const defaultDate = new Date(Date.now() - 1000 * 60 * 60 * 24 * 180);
 
-export function findKSDeclaration(project: Project, options: ICoreOptions): FunctionDeclaration[] {
+export function findKSDeclaration(project: Project, options: ICoreOptions): IReturnStructure {
   // May have multiple decls with the same id, so it's an array
-  const result: FunctionDeclaration[] = [];
+  const result: IReturnStructure = {
+    ksDecls: [],
+    guids: []
+  }
 
   const { targetId, ksFilePath, thresholdDate = defaultDate } = options;
 
@@ -39,10 +48,7 @@ export function findKSDeclaration(project: Project, options: ICoreOptions): Func
   } else {
     // Declarations can only appear where we have KS imports
     ksFiles = project.getSourceFiles().filter((f) =>
-      f
-        .getDescendantsOfKind(SyntaxKind.ImportSpecifier)
-        .map((im) => im.getName())
-        .includes(KS_IMPORT_SPECIFIER)
+      f.getText().includes(KS_ACTIVATED_METHOD)
     );
   }
 
@@ -56,17 +62,22 @@ export function findKSDeclaration(project: Project, options: ICoreOptions): Func
       const accessExp = callExp?.getExpressionIfKind(SyntaxKind.PropertyAccessExpression);
       // wrong structure, skip
       if (
-        accessExp?.getText() != KS_ACTIVATED_METHOD
+        !accessExp?.getText().endsWith(KS_ACTIVATED_METHOD)
       ) {
         return;
       }
 
+      const firstArgument = callExp?.getArguments()[0]?.getText();
+      const guid = firstArgument.substring(1, firstArgument.length - 1);
+      // TODO: should we also handle Guid.parse(ID) ? 
+
       // if targetId is provided, it should be matched with the ks id
       if (targetId) {
-        if (callExp?.getArguments()[0]?.getText() === `'${targetId}'`) {
-          result.push(funDecl);
+        if (guid === targetId) {
+          result.ksDecls.push(funDecl);
+          result.guids.push(guid);
         }
-      } else {
+      } else if (uuidValidate(guid)) {
         // if the second argument exist,it should be the date
         let dateString = callExp?.getArguments()[1]?.getText();
 
@@ -83,7 +94,8 @@ export function findKSDeclaration(project: Project, options: ICoreOptions): Func
         if (dateString) {
           const parsedDate: Date = new Date(dateString);
           if (parsedDate < thresholdDate) {
-            result.push(funDecl);
+            result.ksDecls.push(funDecl);
+            result.guids.push(guid);
           }
         }
       }
