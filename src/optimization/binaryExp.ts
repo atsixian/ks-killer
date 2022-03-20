@@ -1,9 +1,9 @@
 /*
  * @copyright Microsoft Corporation. All rights reserved.
  */
-import { BinaryExpression, SyntaxKind, Node, ts } from 'ts-morph';
-import { HandlerReturnType } from './optimize';
+import { BinaryExpression, Node, SyntaxKind, ts } from 'ts-morph';
 import { isFalsy, isTruthyConstExpr, tryReplaceParentParentheses } from '../utils';
+import { HandlerReturnType } from './optimize';
 
 export function handleBinaryExp(exp: BinaryExpression): HandlerReturnType {
   const operator = exp.getOperatorToken().getKind();
