@@ -3,6 +3,7 @@
  */
 
 import { FunctionDeclaration, Node, Project, SourceFile, SyntaxKind, ts } from 'ts-morph';
+import { validate as uuidValidate } from 'uuid';
 import { extractDateFromComments } from '../utils';
 
 const KS_ACTIVATED_METHOD = `.isActivated`;
@@ -32,7 +33,7 @@ export function findKSDeclaration(project: Project, options: ICoreOptions): IRet
   const result: IReturnStructure = {
     ksDecls: [],
     guids: []
-  }
+  };
 
   const { targetId, ksFilePath, thresholdDate = defaultDate } = options;
 
@@ -46,9 +47,11 @@ export function findKSDeclaration(project: Project, options: ICoreOptions): IRet
     }
   } else {
     // Declarations can only appear where we have KS imports
-    ksFiles = project.getSourceFiles().filter((f) =>
-      f.getText().includes(KS_ACTIVATED_METHOD)
-    );
+    ksFiles = project.getSourceFiles().filter((f) => {
+      const importedNames = f.getDescendantsOfKind(SyntaxKind.ImportSpecifier).map((im) => im.getName());
+      const importedKss = importedNames.filter((name) => /^killswitch$/i.test(name));
+      return importedKss.length && f.getText().includes(KS_ACTIVATED_METHOD);
+    });
   }
 
   ksFiles.forEach((ksFile) => {
