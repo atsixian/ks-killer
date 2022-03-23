@@ -3,6 +3,7 @@ module.exports = {
   // We use a larger print width because Prettier's word-wrapping seems to be tuned
   // for plain JavaScript without type annotations
   printWidth: 110,
+  semi: true,
 
   // Microsoft style quotes
   singleQuote: true,

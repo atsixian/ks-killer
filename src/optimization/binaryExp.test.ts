@@ -11,7 +11,7 @@ import { handleBinaryExp } from './binaryExp';
 describe('Binary Expression', () => {
   describe('Handle &&', () => {
     it.each(truthyValues)('should handle && correctly for truthy value %s on LHS', (value) => {
-      let node = getInfoFromText(`${value} && A()`).firstChild.getFirstChildIfKind(
+      const node = getInfoFromText(`${value} && A()`).firstChild.getFirstChildIfKind(
         SyntaxKind.BinaryExpression
       );
       const res = handleBinaryExp(node);
@@ -19,7 +19,7 @@ describe('Binary Expression', () => {
     });
 
     it.each(truthyValues)('should handle && correctly for truthy value %s on RHS', (value) => {
-      let node = getInfoFromText(`A() && ${value}`).firstChild.getFirstChildIfKind(
+      const node = getInfoFromText(`A() && ${value}`).firstChild.getFirstChildIfKind(
         SyntaxKind.BinaryExpression
       );
       const res = handleBinaryExp(node);
@@ -27,7 +27,7 @@ describe('Binary Expression', () => {
     });
 
     it.each(falsyValues)('should handle && correctly for falsy value %s on LHS', (value) => {
-      let node = getInfoFromText(`${value} && A()`).firstChild.getFirstChildIfKind(
+      const node = getInfoFromText(`${value} && A()`).firstChild.getFirstChildIfKind(
         SyntaxKind.BinaryExpression
       );
       const res = handleBinaryExp(node);
@@ -35,7 +35,7 @@ describe('Binary Expression', () => {
     });
 
     it.each(falsyValues)('should handle && correctly for falsy value %s on RHS', (value) => {
-      let node = getInfoFromText(`A() && ${value}`).firstChild.getFirstChildIfKind(
+      const node = getInfoFromText(`A() && ${value}`).firstChild.getFirstChildIfKind(
         SyntaxKind.BinaryExpression
       );
       const res = handleBinaryExp(node);
@@ -45,7 +45,7 @@ describe('Binary Expression', () => {
 
   describe('Handle ||', () => {
     it.each(truthyValues)('should handle || correctly for truthy value %s on LHS', (value) => {
-      let node = getInfoFromText(`${value} || A()`).firstChild.getFirstChildIfKind(
+      const node = getInfoFromText(`${value} || A()`).firstChild.getFirstChildIfKind(
         SyntaxKind.BinaryExpression
       );
       const res = handleBinaryExp(node);
@@ -53,7 +53,7 @@ describe('Binary Expression', () => {
     });
 
     it.each(truthyValues)('should handle || correctly for truthy value %s on RHS', (value) => {
-      let node = getInfoFromText(`A() || ${value}`).firstChild.getFirstChildIfKind(
+      const node = getInfoFromText(`A() || ${value}`).firstChild.getFirstChildIfKind(
         SyntaxKind.BinaryExpression
       );
       const res = handleBinaryExp(node);
@@ -61,7 +61,7 @@ describe('Binary Expression', () => {
     });
 
     it.each(falsyValues)('should handle || correctly for falsy value %s on LHS', (value) => {
-      let node = getInfoFromText(`${value} || A()`).firstChild.getFirstChildIfKind(
+      const node = getInfoFromText(`${value} || A()`).firstChild.getFirstChildIfKind(
         SyntaxKind.BinaryExpression
       );
       const res = handleBinaryExp(node);
@@ -69,7 +69,7 @@ describe('Binary Expression', () => {
     });
 
     it.each(falsyValues)('should handle || correctly for falsy value %s on RHS', (value) => {
-      let node = getInfoFromText(`A() || ${value}`).firstChild.getFirstChildIfKind(
+      const node = getInfoFromText(`A() || ${value}`).firstChild.getFirstChildIfKind(
         SyntaxKind.BinaryExpression
       );
       const res = handleBinaryExp(node);

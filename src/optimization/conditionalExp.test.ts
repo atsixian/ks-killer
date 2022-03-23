@@ -50,7 +50,7 @@ describe('Conditional Expression', () => {
   });
 });
 
-function handleCondExps(sourceFile: SourceFile, nested: boolean = false) {
+function handleCondExps(sourceFile: SourceFile, nested = false) {
   sourceFile
     .getDescendantsOfKind(SyntaxKind.ConditionalExpression)
     .forEach(nested ? optimizeNode : handleConditionalExp);

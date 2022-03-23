@@ -2,9 +2,8 @@
  * @copyright Microsoft Corporation. All rights reserved.
  */
 
-import { FunctionDeclaration, IfStatement, Node, Project, SourceFile, SyntaxKind, ts } from 'ts-morph';
-import { validate as uuidValidate } from 'uuid';
-import { isAncestorOf, extractDateFromComments } from '../utils';
+import { FunctionDeclaration, Node, Project, SourceFile, SyntaxKind, ts } from 'ts-morph';
+import { extractDateFromComments } from '../utils';
 
 const KS_ACTIVATED_METHOD = `.isActivated`;
 
@@ -83,7 +82,7 @@ export function findKSDeclaration(project: Project, options: ICoreOptions): IRet
 
         // invalid date string
         if (isNaN(Date.parse(dateString))) {
-          dateString = "";
+          dateString = '';
         }
 
         if (!dateString) {
@@ -103,22 +102,6 @@ export function findKSDeclaration(project: Project, options: ICoreOptions): IRet
   });
 
   return result;
-}
-
-/**
- * Find if the KS affect any if block
- * @param node The KS call
- */
-function findAffectedIf(ksNode: Node<ts.Node>): IfStatement | undefined {
-  const ifAncestor = ksNode.getFirstAncestorByKind(SyntaxKind.IfStatement);
-  const blockAncestor = ksNode.getFirstAncestorByKind(SyntaxKind.Block);
-  if (ifAncestor) {
-    // if it's not used as an condition expression for if, skip
-    if (blockAncestor && isAncestorOf(ifAncestor, blockAncestor)) {
-      return;
-    }
-    return ifAncestor;
-  }
 }
 
 /**
