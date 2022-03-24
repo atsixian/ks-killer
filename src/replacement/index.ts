@@ -6,7 +6,7 @@ import { FunctionDeclaration, Node, Project, SourceFile, SyntaxKind, ts } from '
 import { validate as uuidValidate } from 'uuid';
 import { extractDateFromComments } from '../utils';
 
-const KS_ACTIVATED_METHOD = `.isActivated`;
+const KS_ACTIVATED_METHOD = `isActivated`;
 
 /**
  * Scan the project to find KS's declaration
@@ -49,8 +49,8 @@ export function findKSDeclaration(project: Project, options: ICoreOptions): IRet
     // Declarations can only appear where we have KS imports
     ksFiles = project.getSourceFiles().filter((f) => {
       const importedNames = f.getDescendantsOfKind(SyntaxKind.ImportSpecifier).map((im) => im.getName());
-      const importedKss = importedNames.filter((name) => /^killswitch$/i.test(name));
-      return importedKss.length && f.getText().includes(KS_ACTIVATED_METHOD);
+      const hasKsImported: boolean = importedNames.some((name) => /killswitch/i.test(name));
+      return hasKsImported && f.getText().includes(`.${KS_ACTIVATED_METHOD}`);
     });
   }
 
@@ -64,7 +64,7 @@ export function findKSDeclaration(project: Project, options: ICoreOptions): IRet
       const accessExp = callExp?.getExpressionIfKind(SyntaxKind.PropertyAccessExpression);
       // wrong structure, skip
       if (
-        !accessExp?.getText().endsWith(KS_ACTIVATED_METHOD)
+        accessExp.getNameNode()?.compilerNode?.escapedText !== KS_ACTIVATED_METHOD
       ) {
         return;
       }
