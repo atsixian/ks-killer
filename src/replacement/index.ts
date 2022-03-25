@@ -20,7 +20,7 @@ export interface ICoreOptions {
   thresholdDate?: Date
 }
 
-interface IReturnStructure {
+interface IFindKSResult  {
   ksDecls: FunctionDeclaration[],
   guids: string[]
 }
@@ -28,9 +28,9 @@ interface IReturnStructure {
 // graduate ks before 180 days by default
 const defaultDate = new Date(Date.now() - 1000 * 60 * 60 * 24 * 180);
 
-export function findKSDeclaration(project: Project, options: ICoreOptions): IReturnStructure {
+export function findKSDeclaration(project: Project, options: ICoreOptions): IFindKSResult  {
   // May have multiple decls with the same id, so it's an array
-  const result: IReturnStructure = {
+  const result: IFindKSResult  = {
     ksDecls: [],
     guids: []
   };
@@ -64,7 +64,7 @@ export function findKSDeclaration(project: Project, options: ICoreOptions): IRet
       const accessExp = callExp?.getExpressionIfKind(SyntaxKind.PropertyAccessExpression);
       // wrong structure, skip
       if (
-        accessExp.getNameNode()?.compilerNode?.escapedText !== KS_ACTIVATED_METHOD
+        accessExp.getName() !== KS_ACTIVATED_METHOD
       ) {
         return;
       }
