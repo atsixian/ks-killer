@@ -2,7 +2,7 @@
   "name": "ks-killer",
   "description": "Kill your Switches with ease",
   "author": "Sixian Li",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "license": "MIT",
   "publishConfig": {
     "registry": "https://registry.yarnpkg.com"
