@@ -1,10 +1,11 @@
 import { FunctionDeclaration, SyntaxKind } from 'ts-morph';
 
-const dateRegExp = /['"]?(\d{1,2}\/\d{1,2}\/\d{1,4})["']? ?\,/;
+
+const dateRegExp = /['"]?(\d{1,2}\/\d{1,2}\/\d{1,4})["']?.*,/;
 
 export function getDate(commentString: string): string {
   const matchResult = commentString.match(dateRegExp);
-  return (matchResult && matchResult[1]) ? matchResult[1] : "";
+  return (matchResult && matchResult[1]) ? matchResult[1] : '';
 }
 
 export function extractDateFromComments(funDecl: FunctionDeclaration): string {
