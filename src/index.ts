@@ -3,7 +3,7 @@
  */
 
 import path from 'path';
-
+import chalk from 'chalk';
 import { Project } from 'ts-morph';
 
 import { optimize } from './optimization';
@@ -12,10 +12,10 @@ import { findKSDeclaration, replaceFunCallWithFalse, ICoreOptions } from './repl
 export function run(projectPath: string, options: ICoreOptions) {
   const project = new Project();
   project.addSourceFilesAtPaths(path.join(projectPath, `src/**/*.{ts,tsx}`));
-  const ksDecls = findKSDeclaration(project, options);
+  const { ksDecls, guids } = findKSDeclaration(project, options);
   // TODO: check if the KS is activated. If so, do thing.
   if (!ksDecls.length) {
-    console.log(`No KS found.`);
+    console.log(chalk.red(`No KS found.`));
     return;
   }
   ksDecls.map(replaceFunCallWithFalse).forEach(({ workList, refFiles }) => {
@@ -36,5 +36,7 @@ export function run(projectPath: string, options: ICoreOptions) {
   });
   // remove KS function declarations
   ksDecls.forEach((decl) => decl.remove());
+
+  console.log(chalk.green(`KS successfully graduated: \n${guids.join('\n')}`));
   project.save();
 }

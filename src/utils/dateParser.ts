@@ -1,5 +1,6 @@
 import { FunctionDeclaration, SyntaxKind } from 'ts-morph';
 
+
 const dateRegExp = /['"]?(\d{1,2}\/\d{1,2}\/\d{1,4})["']?.*,/;
 
 export function getDate(commentString: string): string {
