@@ -1,9 +1,9 @@
 /*
  * @copyright Microsoft Corporation. All rights reserved.
  */
-import { ConditionalExpression, SyntaxKind, Node, ts } from 'ts-morph';
-import { HandlerReturnType } from './optimize';
+import { ConditionalExpression, SyntaxKind } from 'ts-morph';
 import { tryReplaceParentParentheses } from '../utils';
+import { HandlerReturnType } from './optimize';
 
 export function handleConditionalExp(exp: ConditionalExpression): HandlerReturnType {
   const cond = exp.getCondition();

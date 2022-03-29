@@ -1,30 +1,12 @@
+/* eslint-disable */
 import {
   CompilerOptions,
   FileSystemHost,
-  InMemoryFileSystemHost,
-  RealFileSystemHost,
-  SyntaxKind,
-  ts
+  InMemoryFileSystemHost, SyntaxKind
 } from '@ts-morph/common';
+import { Node, Project, SourceFile } from 'ts-morph';
 
-import * as path from 'path';
-import { Node, SourceFile, Project } from 'ts-morph';
 type IsAny<T> = 0 extends 1 & T ? true : false;
-const fileSystem = new RealFileSystemHost();
-
-const versionLibFolder = new Map<string, string>();
-function getCompilerLibFolder(version: string) {
-  if (!versionLibFolder.has(version)) versionLibFolder.set(version, getFolder());
-
-  return versionLibFolder.get(version)!;
-
-  function getFolder() {
-    const basePath = path.join(__dirname, `../../../../../common/node_modules/`);
-    const versionPath = path.join(basePath, `typescript-${version}/lib`);
-    if (fileSystem.directoryExistsSync(versionPath)) return versionPath;
-    else return path.join(basePath, `typescript/lib`);
-  }
-}
 
 export interface GetInfoFromTextOptions {
   isDefinitionFile?: boolean;
