@@ -16,7 +16,11 @@ yarn global add ks-killer
 ## Usage
 ```bash
 $ cd your/project
+# graduate a specific ks
 $ ks-killer <target-ks-id>
+# graduate multiple ks by date
+$ ks-killer --before-date <date>
+e.g: ks-killer --before-date 20211231
 # You can also tell it where to find the KS declaration by specifying the -k or -p flag. 
 # This boosts performance because we don't need to scan many source files just to find the declaration.
 $ ks-killer <target-ks-id> -k path/to/ks-decl
