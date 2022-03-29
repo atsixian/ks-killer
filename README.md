@@ -19,7 +19,7 @@ $ cd your/project
 # graduate a specific ks
 $ ks-killer <target-ks-id>
 # graduate multiple ks by date
-# input should a valid date which could be parsed by `Date.parse`
+# input should be a valid date supported by `Date.parse`
 $ ks-killer --before-date <date>
 e.g: ks-killer --before-date 12/31/2021
 # You can also tell it where to find the KS declaration by specifying the -k or -p flag. 
