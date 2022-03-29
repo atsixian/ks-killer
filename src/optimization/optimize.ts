@@ -13,7 +13,7 @@ export function optimize(nodes: Set<Node<ts.Node>>) {
   nodes.forEach(optimizeNode);
 }
 
-export function optimizeNode(node: Node<ts.Node>) {
+export function optimizeNode(node: Node<ts.Node> | undefined) {
   if (!node || node.wasForgotten()) return;
   let newWork: HandlerReturnType;
   switch (node.getKind()) {

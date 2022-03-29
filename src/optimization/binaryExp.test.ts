@@ -11,69 +11,69 @@ import { handleBinaryExp } from './binaryExp';
 describe('Binary Expression', () => {
   describe('Handle &&', () => {
     it.each(truthyValues)('should handle && correctly for truthy value %s on LHS', (value) => {
-      const node = getInfoFromText(`${value} && A()`).firstChild.getFirstChildIfKind(
+      const node = getInfoFromText(`${value} && A()`).firstChild.getFirstChildByKindOrThrow(
         SyntaxKind.BinaryExpression
       );
       const res = handleBinaryExp(node);
-      expect(res.getText() === `A()`).toBeTruthy();
+      expect(res?.getText() === `A()`).toBeTruthy();
     });
 
     it.each(truthyValues)('should handle && correctly for truthy value %s on RHS', (value) => {
-      const node = getInfoFromText(`A() && ${value}`).firstChild.getFirstChildIfKind(
+      const node = getInfoFromText(`A() && ${value}`).firstChild.getFirstChildByKindOrThrow(
         SyntaxKind.BinaryExpression
       );
       const res = handleBinaryExp(node);
-      expect(res.getText() === 'A()').toBeTruthy();
+      expect(res?.getText() === 'A()').toBeTruthy();
     });
 
     it.each(falsyValues)('should handle && correctly for falsy value %s on LHS', (value) => {
-      const node = getInfoFromText(`${value} && A()`).firstChild.getFirstChildIfKind(
+      const node = getInfoFromText(`${value} && A()`).firstChild.getFirstChildByKindOrThrow(
         SyntaxKind.BinaryExpression
       );
       const res = handleBinaryExp(node);
-      expect(res.getText() === `false`).toBeTruthy();
+      expect(res?.getText() === `false`).toBeTruthy();
     });
 
     it.each(falsyValues)('should handle && correctly for falsy value %s on RHS', (value) => {
-      const node = getInfoFromText(`A() && ${value}`).firstChild.getFirstChildIfKind(
+      const node = getInfoFromText(`A() && ${value}`).firstChild.getFirstChildByKindOrThrow(
         SyntaxKind.BinaryExpression
       );
       const res = handleBinaryExp(node);
-      expect(res.getText() === `false`).toBeTruthy();
+      expect(res?.getText() === `false`).toBeTruthy();
     });
   });
 
   describe('Handle ||', () => {
     it.each(truthyValues)('should handle || correctly for truthy value %s on LHS', (value) => {
-      const node = getInfoFromText(`${value} || A()`).firstChild.getFirstChildIfKind(
+      const node = getInfoFromText(`${value} || A()`).firstChild.getFirstChildByKindOrThrow(
         SyntaxKind.BinaryExpression
       );
       const res = handleBinaryExp(node);
-      expect(res.getText() === `true`).toBeTruthy();
+      expect(res?.getText() === `true`).toBeTruthy();
     });
 
     it.each(truthyValues)('should handle || correctly for truthy value %s on RHS', (value) => {
-      const node = getInfoFromText(`A() || ${value}`).firstChild.getFirstChildIfKind(
+      const node = getInfoFromText(`A() || ${value}`).firstChild.getFirstChildByKindOrThrow(
         SyntaxKind.BinaryExpression
       );
       const res = handleBinaryExp(node);
-      expect(res.getText() === `true`).toBeTruthy();
+      expect(res?.getText() === `true`).toBeTruthy();
     });
 
     it.each(falsyValues)('should handle || correctly for falsy value %s on LHS', (value) => {
-      const node = getInfoFromText(`${value} || A()`).firstChild.getFirstChildIfKind(
+      const node = getInfoFromText(`${value} || A()`).firstChild.getFirstChildByKindOrThrow(
         SyntaxKind.BinaryExpression
       );
       const res = handleBinaryExp(node);
-      expect(res.getText() === `A()`).toBeTruthy();
+      expect(res?.getText() === `A()`).toBeTruthy();
     });
 
     it.each(falsyValues)('should handle || correctly for falsy value %s on RHS', (value) => {
-      const node = getInfoFromText(`A() || ${value}`).firstChild.getFirstChildIfKind(
+      const node = getInfoFromText(`A() || ${value}`).firstChild.getFirstChildByKindOrThrow(
         SyntaxKind.BinaryExpression
       );
       const res = handleBinaryExp(node);
-      expect(res.getText() === `A()`).toBeTruthy();
+      expect(res?.getText() === `A()`).toBeTruthy();
     });
   });
 

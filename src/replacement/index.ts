@@ -20,7 +20,7 @@ export interface ICoreOptions {
   thresholdDate?: Date
 }
 
-interface IFindKSResult  {
+interface IFindKSResult {
   ksDecls: FunctionDeclaration[],
   guids: string[]
 }
@@ -28,9 +28,9 @@ interface IFindKSResult  {
 // graduate ks before 180 days by default
 const defaultDate = new Date(Date.now() - 1000 * 60 * 60 * 24 * 180);
 
-export function findKSDeclaration(project: Project, options: ICoreOptions): IFindKSResult  {
+export function findKSDeclaration(project: Project, options: ICoreOptions): IFindKSResult {
   // May have multiple decls with the same id, so it's an array
-  const result: IFindKSResult  = {
+  const result: IFindKSResult = {
     ksDecls: [],
     guids: []
   };
@@ -38,7 +38,7 @@ export function findKSDeclaration(project: Project, options: ICoreOptions): IFin
   const { targetId, ksFilePath, thresholdDate = defaultDate } = options;
 
   // find file with 'KS_ACTIVATED_METHOD'
-  let ksFiles: SourceFile[];
+  let ksFiles: SourceFile[] = [];
   if (ksFilePath) {
     try {
       ksFiles.push(project.getSourceFileOrThrow(ksFilePath));
@@ -64,13 +64,13 @@ export function findKSDeclaration(project: Project, options: ICoreOptions): IFin
       const accessExp = callExp?.getExpressionIfKind(SyntaxKind.PropertyAccessExpression);
       // wrong structure, skip
       if (
-        accessExp.getName() !== KS_ACTIVATED_METHOD
+        accessExp?.getName() !== KS_ACTIVATED_METHOD
       ) {
         return;
       }
 
       const firstArgument = callExp?.getArguments()[0]?.getText();
-      const guid = firstArgument.substring(1, firstArgument.length - 1);
+      const guid = firstArgument?.substring(1, firstArgument.length - 1);
       // TODO: should we also handle Guid.parse(ID) ? 
 
       // if targetId is provided, it should be matched with the ks id
@@ -79,9 +79,9 @@ export function findKSDeclaration(project: Project, options: ICoreOptions): IFin
           result.ksDecls.push(funDecl);
           result.guids.push(guid);
         }
-      } else if (uuidValidate(guid)) {
+      } else if (guid && uuidValidate(guid)) {
         // if the second argument exist,it should be the date
-        let dateString = callExp?.getArguments()[1]?.getText();
+        let dateString = callExp?.getArguments()[1]?.getText() ?? '';
 
         // invalid date string
         if (isNaN(Date.parse(dateString))) {
@@ -125,16 +125,21 @@ export function replaceFunCallWithFalse(ksDecl: FunctionDeclaration): {
       const refNode = ref.getNode();
       const parent = refNode.getParent();
       // not a function call(e.g. declaration), skip
-      if (!(parent.getKind() === SyntaxKind.CallExpression)) {
+      if (!(parent?.getKind() === SyntaxKind.CallExpression)) {
         return;
       }
-      refFiles.add(refNode.getSourceFile());
+      const refFile = refNode.getSourceFile();
       // if it's negated, replace the whole thing with true
       const negation = parent.getParentIfKind(SyntaxKind.PrefixUnaryExpression);
+      let newParent: Node<ts.Node> | undefined;
       if (negation?.getOperatorToken() === SyntaxKind.ExclamationToken) {
-        workList.add(negation.replaceWithText('true').getParent());
+        newParent = negation.replaceWithText('true').getParent();
       } else {
-        workList.add(parent.replaceWithText('false').getParent());
+        newParent = parent.replaceWithText('false').getParent();
+      }
+      if (newParent) {
+        workList.add(newParent);
+        refFiles.add(refFile);
       }
     });
   });
