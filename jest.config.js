@@ -7,5 +7,6 @@ module.exports = {
       statements: 90
     }
   },
+  testPathIgnorePatterns: ['node_modules', 'lib'],
   collectCoverageFrom: ['src/**/*.ts', '!src/**/index.ts', '!src/**/cli.ts', '!src/utils/test-helper/*.ts']
 };
