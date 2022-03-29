@@ -15,9 +15,9 @@ const KS_ACTIVATED_METHOD = `isActivated`;
  * @param ksFilePath The file containing KS declaration. This boosts performance.
  */
 export interface ICoreOptions {
-  targetId?: string,
-  ksFilePath?: string,
-  thresholdDate?: Date
+  targetId?: string;
+  ksFilePath?: string;
+  thresholdDate?: Date;
 }
 
 interface IFindKSResult {
@@ -78,15 +78,14 @@ export function findKSDeclaration(project: Project, options: ICoreOptions): IFin
           result.guids.push(guid);
         }
       } else if (guid && uuidValidate(guid)) {
-        // if the second argument exist,it should be the date
-        let dateString = callExp?.getArguments()[1]?.getText() ?? '';
+        // we want to get a valid date, either from the second argument or comments
+        // if the second argument exists, it should be the date
+        let dateString;
+        const secondArg = callExp?.getArguments()[1]?.getText();
 
-        // invalid date string
-        if (isNaN(Date.parse(dateString))) {
-          dateString = '';
-        }
-
-        if (!dateString) {
+        if (secondArg && !isNaN(Date.parse(secondArg))) {
+          dateString = secondArg;
+        } else {
           // get date from comments
           dateString = extractDateFromComments(funDecl);
         }

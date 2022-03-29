@@ -6,14 +6,10 @@ const validComments = [
   `/* '08/24/2021' , 'fix focus lost when cancel the dialog' */`,
   `/* "08/24/2021", fix focus lost when cancel the dialog */`,
   `/* 08/24/2021, fix focus lost when cancel the dialog */`,
-  `// '08/24/2021', 'fix focus lost when cancel the dialog' `,
+  `// '08/24/2021', 'fix focus lost when cancel the dialog' `
 ];
 
-const invalidComments = [
-  `/* '08/24/2021'. 'fix focus lost when cancel the dialog' */`,
-  `/* '08/24/2021 */`
-];
-
+const invalidComments = [`/* '08/24/2021'. 'fix focus lost when cancel the dialog' */`, `/* '08/24/2021 */`];
 
 describe('Extract date from a given string', () => {
   it.each(validComments)('Valid comment string : %s', (comment) => {
@@ -27,7 +23,7 @@ describe('Extract date from a given string', () => {
 
   it.each(invalidComments)('Invalid comment string : %s', (comment) => {
     const date = getDate(comment);
-    expect(date).toBe('');
+    expect(date).toBeUndefined();
   });
 });
 
@@ -87,6 +83,6 @@ describe('Extract date from comments', () => {
         );
       }
     `).firstChild;
-    expect(extractDateFromComments(funDecl)).toBe('');
+    expect(extractDateFromComments(funDecl)).toBeUndefined();
   });
 });
