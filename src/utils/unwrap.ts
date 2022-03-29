@@ -20,7 +20,7 @@ export function tryReplaceParentParentheses(node: Node<ts.Node> | undefined): Ha
 /**
  * Unwrap a ParenthesizedExpression from top to bottom
  */
-export function tryUnwrapParentheses(node: Node<ts.Node>): HandlerReturnType {
+export function tryUnwrapParentheses(node: Node<ts.Node>): Node<ts.Node> {
   const innerExpr = node.asKind(SyntaxKind.ParenthesizedExpression)?.getExpression();
   if (innerExpr) {
     return tryUnwrapParentheses(innerExpr);
