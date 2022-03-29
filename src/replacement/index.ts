@@ -21,8 +21,8 @@ export interface ICoreOptions {
 }
 
 interface IFindKSResult {
-  ksDecls: FunctionDeclaration[],
-  guids: string[]
+  ksDecls: FunctionDeclaration[];
+  guids: string[];
 }
 
 // graduate ks before 180 days by default
@@ -63,15 +63,13 @@ export function findKSDeclaration(project: Project, options: ICoreOptions): IFin
       const callExp = returnStatement?.getExpressionIfKind(SyntaxKind.CallExpression);
       const accessExp = callExp?.getExpressionIfKind(SyntaxKind.PropertyAccessExpression);
       // wrong structure, skip
-      if (
-        accessExp?.getName() !== KS_ACTIVATED_METHOD
-      ) {
+      if (accessExp?.getName() !== KS_ACTIVATED_METHOD) {
         return;
       }
 
       const firstArgument = callExp?.getArguments()[0]?.getText();
       const guid = firstArgument?.substring(1, firstArgument.length - 1);
-      // TODO: should we also handle Guid.parse(ID) ? 
+      // TODO: should we also handle Guid.parse(ID) ?
 
       // if targetId is provided, it should be matched with the ks id
       if (targetId) {
