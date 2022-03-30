@@ -1,9 +1,9 @@
 /*
  * @copyright Microsoft Corporation. All rights reserved.
  */
-import yargs from 'yargs/yargs';
 import { validate as uuidValidate } from 'uuid';
-import { run } from '.';
+import yargs from 'yargs/yargs';
+import { run } from './run';
 
 interface IArguments {
   ID: string | undefined;
