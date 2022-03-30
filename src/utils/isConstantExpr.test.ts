@@ -30,11 +30,9 @@ describe('isFalsy', () => {
 
 describe('isTruthyConstExpr', () => {
   it.each(truthyValues)('%s', (value) => {
-    let node = getInfoFromText(value).firstChild.getFirstChild();
+    let node = getInfoFromText(value).firstChild.getFirstChildOrThrow();
     // Need to unwrap parenthesized expressions
-    if (value === '({})') {
-      node = tryUnwrapParentheses(node);
-    }
+    node = tryUnwrapParentheses(node);
     expect(isTruthyConstExpr(node)).toBeTruthy();
   });
 });

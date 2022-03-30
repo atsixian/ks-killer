@@ -9,9 +9,10 @@ export function unwrapBlock(target: Statement | Block): string {
 /**
  * Replace a ParenthesizedExpression from bottom up
  */
-export function tryReplaceParentParentheses(node: Node<ts.Node>): HandlerReturnType {
+export function tryReplaceParentParentheses(node: Node<ts.Node> | undefined): HandlerReturnType {
   if (node && node.getParentIfKind(SyntaxKind.ParenthesizedExpression)) {
-    return node.getParent().replaceWithText(node.getText());
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return node.getParent()!.replaceWithText(node.getText());
   }
   return node;
 }
@@ -19,7 +20,7 @@ export function tryReplaceParentParentheses(node: Node<ts.Node>): HandlerReturnT
 /**
  * Unwrap a ParenthesizedExpression from top to bottom
  */
-export function tryUnwrapParentheses(node: Node<ts.Node>): HandlerReturnType {
+export function tryUnwrapParentheses(node: Node<ts.Node>): Node<ts.Node> {
   const innerExpr = node.asKind(SyntaxKind.ParenthesizedExpression)?.getExpression();
   if (innerExpr) {
     return tryUnwrapParentheses(innerExpr);

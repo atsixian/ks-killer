@@ -6,10 +6,10 @@ import { validate as uuidValidate } from 'uuid';
 import { run } from '.';
 
 interface IArguments {
-  ID: string;
-  beforeDate: string;
+  ID: string | undefined;
+  beforeDate: string | undefined;
   projectPath: string;
-  ksFilePath: string;
+  ksFilePath: string | undefined;
 }
 
 const argv: IArguments = yargs(process.argv.slice(2))
@@ -65,4 +65,4 @@ const argv: IArguments = yargs(process.argv.slice(2))
 
 const { ID, projectPath, ksFilePath, beforeDate } = argv;
 
-run(projectPath, { targetId: ID, ksFilePath, thresholdDate: new Date(beforeDate) });
+run(projectPath, { targetId: ID, ksFilePath, thresholdDate: beforeDate ? new Date(beforeDate) : undefined });

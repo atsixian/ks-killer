@@ -26,14 +26,12 @@ function isUndefined(node: Node<ts.Node>): boolean {
   return node.asKind(SyntaxKind.Identifier)?.getText() === 'undefined';
 }
 
-function isNegativeNumericalLiteral(node: Node<ts.Node>) {
+function isNegativeNumericalLiteral(node: Node<ts.Node>): boolean {
   const unaryExpr = node.asKind(SyntaxKind.PrefixUnaryExpression);
-  return (
-    unaryExpr && unaryExpr.getOperatorToken() === SyntaxKind.MinusToken && isNumber(unaryExpr.getOperand())
-  );
+  return unaryExpr?.getOperatorToken() === SyntaxKind.MinusToken && isNumber(unaryExpr.getOperand());
 }
 
-function isNumber(node: Node<ts.Node>) {
+function isNumber(node: Node<ts.Node>): boolean {
   return isNumericalLiteral(node) || isNegativeNumericalLiteral(node);
 }
 
@@ -78,7 +76,8 @@ function isEmptyString(node: Node<ts.Node>): boolean {
 export function isConstantExpr(node: Node<ts.Node> | undefined): boolean {
   if (!node) return false;
   node = tryUnwrapParentheses(node);
-  return CONSTANT_CHECKERS.map((checker) => checker(node)).some((res) => res);
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  return CONSTANT_CHECKERS.map((checker) => checker(node!)).some((res) => res);
 }
 
 export function isFalsy(node: Node<ts.Node> | undefined): boolean {
