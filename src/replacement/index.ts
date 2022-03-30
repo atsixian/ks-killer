@@ -8,12 +8,6 @@ import { extractDateFromComments } from '../utils';
 
 const KS_ACTIVATED_METHOD = `isActivated`;
 
-/**
- * Scan the project to find KS's declaration
- * @param project Target project
- * @param targetId KS ID
- * @param ksFilePath The file containing KS declaration. This boosts performance.
- */
 export interface ICoreOptions {
   targetId?: string;
   ksFilePath?: string;
@@ -28,6 +22,12 @@ interface IFindKSResult {
 // graduate ks before 180 days by default
 const defaultDate = new Date(Date.now() - 1000 * 60 * 60 * 24 * 180);
 
+/**
+ * Scan the project to find KS's declaration
+ * @param project Target project
+ * @param targetId KS ID
+ * @param ksFilePath The file containing KS declaration. This boosts performance.
+ */
 export function findKSDeclaration(project: Project, options: ICoreOptions): IFindKSResult {
   // May have multiple decls with the same id, so it's an array
   const result: IFindKSResult = {
