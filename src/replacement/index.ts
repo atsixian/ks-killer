@@ -80,15 +80,9 @@ export function findKSDeclaration(project: Project, options: ICoreOptions): IFin
       } else if (guid && uuidValidate(guid)) {
         // we want to get a valid date, either from the second argument or comments
         // if the second argument exists, it should be the date
-        let dateString;
         const secondArg = callExp?.getArguments()[1]?.getText();
-
-        if (secondArg && !isNaN(Date.parse(secondArg))) {
-          dateString = secondArg;
-        } else {
-          // get date from comments
-          dateString = extractDateFromComments(funDecl);
-        }
+        const dateString =
+          secondArg && !isNaN(Date.parse(secondArg)) ? secondArg : extractDateFromComments(funDecl);
 
         if (dateString) {
           const parsedDate: Date = new Date(dateString);
