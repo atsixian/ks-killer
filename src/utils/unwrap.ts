@@ -3,7 +3,7 @@ import { HandlerReturnType } from '../optimization';
 
 export function unwrapBlock(target: Statement | Block): string {
   // https://github.com/dsherret/ts-morph/issues/641
-  return target.getChildSyntaxListOrThrow().getText({ trimLeadingIndentation: true });
+  return target.getChildSyntaxListOrThrow().getFullText().trim();
 }
 
 /**

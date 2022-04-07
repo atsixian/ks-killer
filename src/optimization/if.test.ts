@@ -50,6 +50,19 @@ describe('If', () => {
       handleIfs(sourceFile);
       expect(sourceFile.getText().trim()).toBe(`s = 2;`);
     });
+
+    it('should keep comments in if block when cond is always true', () => {
+      const textInIfBlock = `// should keep this comment
+      s = 1;`;
+
+      const { sourceFile } = getInfoFromText(`
+        if (true) {  
+          ${textInIfBlock}
+         }
+      `);
+      handleIfs(sourceFile);
+      expect(sourceFile.getFullText().trim()).toBe(textInIfBlock);
+    });
   });
 });
 
