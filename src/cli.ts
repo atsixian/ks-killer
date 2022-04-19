@@ -13,6 +13,7 @@ interface IArguments {
 }
 
 const argv: IArguments = yargs(process.argv.slice(2))
+  .scriptName('ks-killer')
   .usage('Usage:\n$0 <ks-id>\n$0 --id <ks-id>\n$0 --before-date <date>')
   .example([
     ['$0 39ededd5-f5aa-441c-9197-e312dea3ec45'],
